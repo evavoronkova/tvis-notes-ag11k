@@ -1,0 +1,137 @@
+/* =========================================================
+   Figures for mathematical mdBook
+   ========================================================= */
+
+.figure {
+    display: block;
+    width: 100%;
+    margin: 2.5rem auto;
+    text-align: center;
+    counter-increment: figure;
+}
+
+/* Изображение */
+.figure img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 75vh;
+    height: auto;
+    margin: 0 auto;
+
+    border-radius: 12px;
+
+    /* мягкая тень */
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.05);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+/* Небольшое увеличение при наведении */
+.figure img:hover {
+    transform: scale(1.01);
+
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Подпись */
+.figure figcaption {
+    max-width: 850px;
+    margin: 0.8rem auto 0;
+
+    font-size: 1.1rem;
+    line-height: 1.5;
+
+    color: #666;
+}
+
+/* Автоматический номер */
+.figure figcaption::before {
+    content: "Рисунок " attr(data-figure-number) ". ";
+    font-weight: 600;
+}
+
+/* Ссылки внутри подписи */
+.figure figcaption a {
+    color: inherit;
+}
+
+/* ---------------------------------------------------------
+   Размеры
+   --------------------------------------------------------- */
+
+.figure--small img {
+    max-width: 500px;
+}
+
+.figure--medium img {
+    max-width: 750px;
+}
+
+.figure--large img {
+    max-width: 1000px;
+}
+
+.figure--wide img {
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* ---------------------------------------------------------
+   Без рамки / с рамкой
+   --------------------------------------------------------- */
+
+.figure--plain img {
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.figure--border img {
+    border: 1px solid #ddd;
+}
+
+/* ---------------------------------------------------------
+   Dark mode
+   --------------------------------------------------------- */
+
+.navy .figure figcaption,
+.ayu .figure figcaption {
+    color: #aaa;
+}
+
+.navy .figure img,
+.ayu .figure img {
+    box-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+.navy .figure--border img,
+.ayu .figure--border img {
+    border-color: #444;
+}
+
+/* ---------------------------------------------------------
+   Mobile
+   --------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+    .figure {
+        margin: 1.8rem auto;
+    }
+
+    .figure img {
+        width: 100%;
+        max-height: none;
+        border-radius: 8px;
+    }
+
+    .figure figcaption {
+        padding: 0 0.5rem;
+        font-size: 0.85rem;
+    }
+}

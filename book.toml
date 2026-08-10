@@ -1,5 +1,5 @@
 [book]
-title = "Вероятность и статистика"
+title = "Вероятность и статистика (v. 2026.0)"
 authors = ["evavoronkova"]
 language = "ru"
 src = "src"
@@ -10,8 +10,17 @@ description = "Заметки и задачи по вероятности и с�
 build-dir = "book"
 
 [output.html]
-default-theme = "light"
-preferred-dark-theme = "navy"
+no-section-label = true
+additional-css = [
+    "theme/css/custom.css",
+    "theme/css/figures.css"
+]
+
+additional-js = [
+    "theme/js/figures.js"
+]
+
+
 mathjax-support = false
 
 [output.html.fold]
@@ -33,3 +42,9 @@ heading-split-level = 3
 [preprocessor.katex]
 command = "./mdbook-katex.exe"
 after = ["links"]
+
+
+[preprocessor.footnote]
+
+
+

@@ -1,0 +1,24 @@
+.epigraph-poetry {
+    float: right;
+    max-width: 45%;
+    margin: 0 0 20px 20px;
+    font-style: italic;
+}
+.epigraph-author {
+    text-align: right;
+    font-style: normal;
+    font-size: 0.85em;
+    margin-top: 8px;
+    display: block;
+}
+.clearfix {
+    clear: both;
+}
+
+
+.math-figure {
+    display: block;
+    max-width: 850px;
+    width: 90%;
+    margin: 2rem auto;
+}
