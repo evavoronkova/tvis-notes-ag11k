@@ -34,6 +34,9 @@ jobs:
       - name: Build book
         run: mdbook build
 
+      - name: Install mdbook-footnote
+        run: cargo install mdbook-footnote
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
