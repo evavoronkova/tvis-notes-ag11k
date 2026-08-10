@@ -31,11 +31,12 @@ jobs:
 
       - name: Install mdbook-katex
         run: cargo install mdbook-katex --locked
-      - name: Build book
-        run: mdbook build
 
       - name: Install mdbook-footnote
-        run: cargo install mdbook-footnote
+        run: cargo install mdbook-footnote --locked
+
+      - name: Build book
+        run: mdbook build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -44,7 +45,6 @@ jobs:
 
   deploy:
     needs: build
-
     runs-on: ubuntu-latest
 
     environment:
