@@ -40,7 +40,7 @@ expand = true
 heading-split-level = 3
 
 [preprocessor.katex]
-command = "./mdbook-katex.exe"
+command = "mdbook-katex"
 after = ["links"]
 
 
