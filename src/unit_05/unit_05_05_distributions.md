@@ -11,7 +11,7 @@ $$X(\omega) = \sum\limits_{i = 1}^n w_i,\;\; \text{где} \;\; \omega = (w_1, \
 <div class="math-block definition">
 
 Cлучайная величина $X:\Omega \rightarrow \{0, 1, \ldots, n\}$ на произвольном пространстве элементарных исходов имеет **биномиальное распределение**, если она принимает значения от $0$ до $n$ с вероятностями
-$$ P(X = k) = C_n^k p^k (1-p)^{n - k}.$$
+$$ P(X = k) = C_n^k p^k (1-p)^{n - k}$$
  для некоторого $p\in (0,1)$. .
 </div>
 
@@ -19,7 +19,7 @@ $$ P(X = k) = C_n^k p^k (1-p)^{n - k}.$$
 <div class="math-block definition">
 Распределение $$\begin{pmatrix} 
    0 & 1 & 2 & \ldots & k &  \ldots & n\\ 
-   q^n & C_n^1\cdot p\cdot q^{n-1} & C_n^2\cdot p^2\cdot q^{n-2} & \ldots & C_n^k\cdot p^k\cdot q^{n-k}\cdot p & \ldots & p^n
+   q^n & C_n^1\cdot p\cdot q^{n-1} & C_n^2\cdot p^2\cdot q^{n-2} & \ldots & C_n^k\cdot p^k\cdot q^{n-k} & \ldots & p^n
    \end{pmatrix}, $$
 где  $p\in (0;1), \; q = 1-p$, 
  
@@ -32,7 +32,7 @@ $$ P(X = k) = C_n^k p^k (1-p)^{n - k}.$$
 ![Распределение биномиальной случайной величины](../img/binomial-distr.png)
 
 <figcaption>
-Случайная величина как сумма результатов двух бросков.
+Случайная величина как сумма результатов двух бросков (нарисовано ИИ).
 </figcaption>
 
 </figure>
