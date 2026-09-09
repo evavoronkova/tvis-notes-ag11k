@@ -1,20 +1,319 @@
-/* Сбрасываем счётчик задач для КАЖДОЙ страницы */
-.mdbook-content {
-  counter-reset: problem;
+```css
+/* =========================================================
+   MathBook — Tasks
+   mdBook 0.5.x
+   ========================================================= */
+
+
+/* =========================================================
+   1. Task counter
+   ========================================================= */
+
+/*
+ * Each mdBook page starts its own task numbering.
+ *
+ * Example:
+ *
+ * <div class="task easy">
+ *     ...
+ * </div>
+ *
+ * <div class="task medium">
+ *     ...
+ * </div>
+ */
+
+.content {
+    counter-reset: task;
 }
 
-/* Стили для блока задачи */
-.problem {
-  counter-increment: problem;
-  margin: 1.5em 0;
-  padding: 1em 1.2em;
-  border-left: 4px solid #4a90d9;
-  background: #f8f9fa;
+
+/* =========================================================
+   2. Base task
+   ========================================================= */
+
+.task {
+    position: relative;
+
+    margin: 26px 0;
+    padding: 18px 22px 18px 24px;
+
+    border: none;
+    border-radius: 0;
+
+    background: var(--block-accent);
+
+    border-left: 4px solid #8a8f93;
+
+    counter-increment: task;
+
+    line-height: 26px;
 }
 
-/* Автономер перед заголовком/текстом задачи */
-.problem::before {
-  content: "Задача " counter(problem) ". ";
-  font-weight: bold;
-  color: #2c3e50;
+
+/* Remove excessive top margin from the first element */
+
+.task > :first-child {
+    margin-top: 0;
 }
+
+
+/* Remove excessive bottom margin from the last element */
+
+.task > :last-child {
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   3. Task title
+   ========================================================= */
+
+.task::before {
+    display: block;
+
+    margin-bottom: 0.65rem;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+
+    /*color: #3f464b;*/
+}
+
+
+/* =========================================================
+   4. Difficulty
+   ========================================================= */
+
+/* Easy */
+
+.task.easy {
+    border-left-color: #7a9e7e;
+}
+
+.task.easy::before {
+    content: "Задача " counter(task) " · ★☆☆";
+}
+
+
+/* Medium */
+
+.task.medium {
+    border-left-color: #b08b57;
+}
+
+.task.medium::before {
+    content: "Задача " counter(task) " · ★★☆";
+}
+
+
+/* Hard */
+
+.task.hard {
+    border-left-color: #a65d5d;
+}
+
+.task.hard::before {
+    content: "Задача " counter(task) " · ★★★";
+}
+
+
+/* =========================================================
+   5. Text inside task
+   ========================================================= */
+
+.task p {
+    margin-top: 0.6rem;
+    margin-bottom: 0.8rem;
+}
+
+
+/* =========================================================
+   6. Mathematics
+   ========================================================= */
+
+/*
+ * Keep displayed formulas visually separated,
+ * but don't make the task too loose.
+ */
+
+.task .katex-display {
+    margin: 0.9rem 0;
+}
+
+
+/* =========================================================
+   7. Solution
+   ========================================================= */
+
+.task details {
+    margin-top: 1rem;
+
+    border-top: 1px solid #dededb;
+
+    padding-top: 0.75rem;
+}
+
+
+/* "Решение" clickable line */
+
+.task details summary {
+    cursor: pointer;
+
+    font-size: 0.92rem;
+    font-weight: 600;
+
+    color: #59636b;
+
+    user-select: none;
+}
+
+
+/* Small visual feedback */
+
+.task details summary:hover {
+    color: #30363b;
+}
+
+
+/* Space between summary and solution */
+
+.task details[open] summary {
+    margin-bottom: 0.8rem;
+}
+
+
+/* Solution text */
+
+.task details p {
+    margin-top: 0.5rem;
+}
+
+
+/* =========================================================
+   8. Answer
+   ========================================================= */
+
+/*
+ * Optional:
+ *
+ * <div class="answer">
+ *     ...
+ * </div>
+ */
+
+.task .answer {
+    margin-top: 0.9rem;
+    padding: 0.65rem 0.9rem;
+
+    background: #f0f1ef;
+
+    border-left: 3px solid #8a8f93;
+}
+
+.task .answer::before {
+    content: "Ответ";
+
+    display: block;
+
+    margin-bottom: 0.35rem;
+
+    font-size: 0.88rem;
+    font-weight: 600;
+
+    color: #59636b;
+}
+
+
+/* =========================================================
+   9. Lists inside tasks
+   ========================================================= */
+
+.task ul,
+.task ol {
+    margin-top: 0.6rem;
+    margin-bottom: 0.8rem;
+}
+
+
+/* =========================================================
+   10. Nested tasks
+   ========================================================= */
+
+/*
+ * Prevent accidental visual problems if a task contains
+ * another block.
+ */
+
+.task blockquote {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+
+/* =========================================================
+   11. Links
+   ========================================================= */
+
+.task a {
+    text-decoration: none;
+}
+
+.task a:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   12. Responsive layout
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .task {
+        margin: 1.2rem 0;
+
+        padding: 0.9rem 1rem 1rem 1.1rem;
+
+        border-left-width: 3px;
+    }
+
+    .task::before {
+        font-size: 0.88rem;
+    }
+}
+
+
+/* =========================================================
+   13. Print
+   ========================================================= */
+
+@media print {
+
+    .task {
+        background: none;
+
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .task details {
+        border-top: none;
+    }
+
+    /*
+     * When printing, show the solution.
+     */
+
+    .task details {
+        display: block;
+    }
+
+    .task details summary {
+        display: none;
+    }
+}
+```

@@ -1,3 +1,0 @@
-# Chapter 2
-
-to be continued ...
