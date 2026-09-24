@@ -1,4 +1,3 @@
-
 ## Биномиальное распределение
 
 Рассмотрим схему испытаний Бернулли c вероятностью успеха $p$ и $n$ испытаниями. Пусть случайная величину $X(\omega)$ --- это количество успехов в элементарном исходе $\omega$, то есть её можно задать формулой
@@ -38,9 +37,12 @@ $$ P(X = k) = C_n^k p^k (1-p)^{n - k}$$
 </figure>
 
 
+<!-- Интерактивная диаграмма -->
+
+<iframe src="binomial-widget-improved (7).html" width="100%" height="700" frameborder="0" scrolling="no" style="border: none; overflow: hidden;"></iframe>
 
 
-- Количество рёбер в случайном графе имеет биномиальное распределение $Binom(C_n^2,p)$.
+<iframe src="binomial-widget-fixed (2).html" width="100%" height="700" frameborder="0" scrolling="no" style="border: none; overflow: hidden;"></iframe>
 
 
 

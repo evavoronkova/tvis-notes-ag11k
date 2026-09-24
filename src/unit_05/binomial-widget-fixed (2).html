@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Биномиальное распределение</title>
+</head>
+<body>
+
+<div id="binomial-widget" style="margin: 20px 0; font-family: system-ui, sans-serif; color: var(--fg, #333); position: relative;">
+  <svg id="bin-graph" viewBox="0 0 700 400" style="width: 100%; height: auto; background: var(--bg, #f7f7f5); border-radius: 4px; overflow: visible;" role="img" aria-label="График биномиального распределения">
+    <g id="bin-axes"></g>
+    <line id="bin-mean" stroke="#D93025" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.8" />
+    <g id="bin-bars"></g>
+  </svg>
+
+  <div class="bin-controls">
+    <div class="bin-control-group">
+      <label for="bin-n" style="font-weight: bold; min-width: 25px;">n =</label>
+      <input id="bin-n" type="range" min="1" max="30" value="10" step="1" class="bin-slider" aria-label="Число испытаний n">
+      <span id="bin-nv" style="font-variant-numeric: tabular-nums; min-width: 20px;">10</span>
+    </div>
+    <div class="bin-control-group">
+      <label for="bin-p" style="font-weight: bold; min-width: 25px;">p =</label>
+      <input id="bin-p" type="range" min="0" max="1" step="0.01" value="0.5" class="bin-slider" aria-label="Вероятность успеха p">
+      <span id="bin-pv" style="font-variant-numeric: tabular-nums; min-width: 35px;">0.50</span>
+    </div>
+  </div>
+
+  <div id="bin-stats" style="text-align: center; margin-top: 12px; font-size: 13px; opacity: 0.75; font-variant-numeric: tabular-nums; min-height: 18px;"></div>
+  <div id="bin-range" style="text-align: center; margin-top: 4px; font-size: 13px; font-variant-numeric: tabular-nums; min-height: 18px;"></div>
+  <div id="bin-formula" style="text-align: center; margin-top: 4px; font-size: 13px; min-height: 32px;"></div>
+
+  <div id="bin-tooltip" role="tooltip" style="position: absolute; pointer-events: none; opacity: 0; background: #222222 !important; color: #ffffff !important; padding: 8px 12px; border-radius: 4px; font-size: 13px; line-height: 1.4; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.1s ease, left 0.05s linear, top 0.05s linear; z-index: 99999 !important; transform: translate(-50%, -130%); white-space: nowrap;"></div>
+</div>
+
+<style>
+  .bin-bar {
+    transition: fill 0.15s ease, opacity 0.15s ease;
+    cursor: pointer;
+  }
+  .bin-bar:hover { fill: #0B8043; opacity: 1; }
+  .bin-bar:focus-visible {
+    outline: 2px solid #0B8043;
+    outline-offset: 2px;
+    opacity: 1;
+  }
+
+  .bin-bar.sel { fill: #F29900; opacity: 1; }
+  .bin-bar.sel:hover { fill: #C77800; }
+  .bin-bar.sel:focus-visible { outline-color: #C77800; }
+
+  .bin-sum { display: inline-block; vertical-align: middle; text-align: center; font-size: 11px; line-height: 1.15; margin: 0 2px; }
+  .bin-sum .bin-sum-sign { display: block; font-size: 1.4em; line-height: 1; }
+
+  .bin-controls { display: flex; gap: 24px; margin-top: 25px; flex-wrap: wrap; justify-content: center; }
+  .bin-control-group { display: flex; align-items: center; gap: 12px; }
+
+  .bin-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    --bin-fill: 50%;
+    width: 160px;
+    background: transparent;
+    cursor: pointer;
+    height: 30px;
+  }
+  .bin-slider:focus { outline: none; }
+
+  .bin-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #0F9D58 var(--bin-fill), var(--table-border-color, #e0e0e0) var(--bin-fill));
+    height: 6px; border-radius: 3px;
+  }
+  .bin-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    margin-top: -7px;
+    background-color: #0F9D58;
+    height: 20px; width: 20px; border-radius: 50%;
+    transition: background-color 0.1s ease, transform 0.1s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .bin-slider:hover::-webkit-slider-thumb { background-color: #0B8043; transform: scale(1.1); }
+  .bin-slider:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(15,157,88,0.35); }
+
+  .bin-slider::-moz-range-track {
+    background: linear-gradient(to right, #0F9D58 var(--bin-fill), var(--table-border-color, #e0e0e0) var(--bin-fill));
+    height: 6px; border-radius: 3px;
+  }
+  .bin-slider::-moz-range-thumb {
+    background-color: #0F9D58; border: none;
+    height: 20px; width: 20px; border-radius: 50%;
+    transition: background-color 0.1s ease, transform 0.1s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .bin-slider:hover::-moz-range-thumb { background-color: #0B8043; transform: scale(1.1); }
+  .bin-slider:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px rgba(15,157,88,0.35); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bin-bar, .bin-slider::-webkit-slider-thumb, .bin-slider::-moz-range-thumb { transition: none; }
+  }
+
+  @media (max-width: 600px) {
+    .bin-controls { flex-direction: column; align-items: center; gap: 16px; }
+    .bin-slider { width: 65vw; }
+  }
+</style>
+
+<script>
+(function() {
+    "use strict";
+
+    const nSlider = document.getElementById("bin-n");
+    const pSlider = document.getElementById("bin-p");
+    const nValue  = document.getElementById("bin-nv");
+    const pValue  = document.getElementById("bin-pv");
+    const graph   = document.getElementById("bin-graph");
+    const axesG   = document.getElementById("bin-axes");
+    const barsG   = document.getElementById("bin-bars");
+    const meanLn  = document.getElementById("bin-mean");
+    const statsEl = document.getElementById("bin-stats");
+    const rangeEl = document.getElementById("bin-range");
+    const formulaEl = document.getElementById("bin-formula");
+    const tooltip = document.getElementById("bin-tooltip");
+    const widget  = document.getElementById("binomial-widget");
+
+    if (!nSlider || !pSlider || !graph) return;
+
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const W = 700, H = 400;
+    const LEFT = 60, RIGHT = 30, TOP = 20, BOTTOM = 50;
+    const PLOT_W = W - LEFT - RIGHT;
+    const PLOT_H = H - TOP - BOTTOM;
+    const BASELINE = H - BOTTOM;
+    const ANIM_MS = 250;
+
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // ---------- Оптимизация (Пункт 2): Быстрая факториальная математика ----------
+    const LN_FACT = new Float64Array(31);
+    (function precomputeLogFactorials() {
+        let acc = 0;
+        LN_FACT[0] = 0;
+        for (let i = 1; i <= 30; i++) {
+            acc += Math.log(i);
+            LN_FACT[i] = acc;
+        }
+    })();
+
+    function logBinomCoeff(n, k) {
+        if (k < 0 || k > n) return -Infinity;
+        return LN_FACT[n] - LN_FACT[k] - LN_FACT[n - k];
+    }
+
+    function logPMF(n, k, p) {
+        if (k < 0 || k > n) return -Infinity;
+        if (p <= 0) return k === 0 ? 0 : -Infinity;
+        if (p >= 1) return k === n ? 0 : -Infinity;
+        return logBinomCoeff(n, k) + k * Math.log(p) + (n - k) * Math.log(1 - p);
+    }
+
+    function computePMF(n, p) {
+        const pmf = new Array(n + 1);
+        if (p <= 0 || p >= 1) {
+            for (let k = 0; k <= n; k++) pmf[k] = 0;
+            pmf[p >= 1 ? n : 0] = 1;
+            return pmf;
+        }
+        const logs = new Array(n + 1);
+        let m = -Infinity;
+        for (let k = 0; k <= n; k++) {
+            const l = logPMF(n, k, p);
+            logs[k] = l;
+            if (l > m) m = l;
+        }
+        let sum = 0;
+        const w = new Array(n + 1);
+        for (let k = 0; k <= n; k++) { w[k] = Math.exp(logs[k] - m); sum += w[k]; }
+        for (let k = 0; k <= n; k++) pmf[k] = w[k] / sum;
+        return pmf;
+    }
+
+    function clamp01(x) { return Math.min(1, Math.max(0, x)); }
+
+    let cdf = [];
+    let tail = [];
+    let selA = -1, selB = -1;
+
+    function computeDistributions(n, p) {
+        const pmf = computePMF(n, p);
+        cdf = new Array(n + 1);
+        tail = new Array(n + 1);
+        
+        let acc = 0, s = 0;
+        for (let k = 0; k <= n; k++) { acc += pmf[k]; cdf[k] = clamp01(acc); }
+        for (let k = n; k >= 0; k--) { s += pmf[k]; tail[k] = clamp01(s); }
+        
+        // Исправление Пункта 1: Границы выставляются с учетом p
+        if (p <= 0) {
+            cdf.fill(1);
+            tail.fill(0);
+            tail[0] = 1;
+        } else if (p >= 1) {
+            cdf.fill(0);
+            cdf[n] = 1;
+            tail.fill(1);
+        } else {
+            cdf[n] = 1;
+            tail[0] = 1;
+        }
+        return pmf;
+    }
+
+    function rangeProb(pmf, a, b) {
+        let s = 0;
+        for (let k = a; k <= b; k++) s += pmf[k];
+        return clamp01(s);
+    }
+
+    const bars = [];
+    const mean = { cx: LEFT, tx: LEFT };
+    let rafId = null, animStart = 0;
+    let currentPMF = [];
+    let lastDrawnN = -1;
+
+    function makeBar() {
+        const r = document.createElementNS(SVG_NS, "rect");
+        r.setAttribute("class", "bin-bar");
+        r.setAttribute("fill", "#0F9D58");
+        r.setAttribute("rx", "2");
+        r.setAttribute("opacity", "0.85");
+        r.setAttribute("role", "button");
+        r.setAttribute("tabindex", "0");
+        r.setAttribute("aria-haspopup", "dialog");
+        return r;
+    }
+
+    function renderBar(b) {
+        b.el.setAttribute("x", b.cx);
+        b.el.setAttribute("y", b.cy);
+        b.el.setAttribute("width", b.cw);
+        b.el.setAttribute("height", b.ch);
+    }
+
+    function tick(now) {
+        const t = Math.min((now - animStart) / ANIM_MS, 1);
+        const e = 1 - Math.pow(1 - t, 3);
+        for (let i = 0; i < bars.length; i++) {
+            const b = bars[i];
+            b.cx = b.fx + (b.tx - b.fx) * e;
+            b.cy = b.fy + (b.ty - b.fy) * e;
+            b.cw = b.fw + (b.tw - b.fw) * e;
+            b.ch = b.fh + (b.th - b.fh) * e;
+            renderBar(b);
+        }
+        mean.cx = mean.fx + (mean.tx - mean.fx) * e;
+        meanLn.setAttribute("x1", mean.cx);
+        meanLn.setAttribute("x2", mean.cx);
+        if (t < 1) {
+            rafId = requestAnimationFrame(tick);
+        } else {
+            rafId = null;
+            for (let i = 0; i < bars.length; i++) {
+                const b = bars[i];
+                b.cx = b.tx; b.cy = b.ty; b.cw = b.tw; b.ch = b.th;
+                renderBar(b);
+            }
+            mean.cx = mean.tx;
+            meanLn.setAttribute("x1", mean.cx);
+            meanLn.setAttribute("x2", mean.cx);
+        }
+    }
+
+    function startAnim() {
+        for (let i = 0; i < bars.length; i++) {
+            const b = bars[i];
+            b.fx = b.cx; b.fy = b.cy; b.fw = b.cw; b.fh = b.ch;
+        }
+        mean.fx = mean.cx;
+        if (reduceMotion) {
+            animStart = -ANIM_MS;
+            tick(0);
+            return;
+        }
+        animStart = performance.now();
+        if (!rafId) rafId = requestAnimationFrame(tick);
+    }
+
+    function fillPct(slider) {
+        const min = parseFloat(slider.min) || 0;
+        const max = parseFloat(slider.max) || 1;
+        const val = parseFloat(slider.value);
+        return ((val - min) / (max - min)) * 100;
+    }
+
+    function setFill(slider) {
+        slider.style.setProperty("--bin-fill", fillPct(slider) + "%");
+    }
+
+    function sumSign(a, b) {
+        return '<span class="bin-sum"><span style="display:block">' + b + '</span>' +
+               '<span class="bin-sum-sign">∑</span>' +
+               '<span style="display:block">k = ' + a + '</span></span>';
+    }
+
+    function drawAxes(n, maxY) {
+        if (lastDrawnN === n) return; // Исправление Пункта 1: Кэширование DOM-осей
+        lastDrawnN = n;
+
+        let s = "";
+        for (let i = 0; i <= 5; i++) {
+            const y = BASELINE - (i * PLOT_H) / 5;
+            const v = (maxY * i) / 5;
+            s += '<line x1="' + LEFT + '" y1="' + y + '" x2="' + (W - RIGHT) + '" y2="' + y + '" stroke="var(--table-border-color, #d8d8d8)" stroke-dasharray="4 4" />';
+            s += '<text x="' + (LEFT - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="12" fill="currentColor">' + v.toFixed(2) + '</text>';
+        }
+        s += '<line x1="' + LEFT + '" y1="' + TOP + '" x2="' + LEFT + '" y2="' + BASELINE + '" stroke="currentColor" stroke-width="1.5" />';
+        s += '<line x1="' + LEFT + '" y1="' + BASELINE + '" x2="' + (W - RIGHT) + '" y2="' + BASELINE + '" stroke="currentColor" stroke-width="1.5" />';
+
+        const stepX = PLOT_W / (n + 1);
+        const labelEvery = Math.ceil(n / 15);
+        for (let k = 0; k <= n; k++) {
+            if (!(n <= 15 || k % labelEvery === 0 || k === n)) continue;
+            const x = LEFT + k * stepX + stepX / 2;
+            s += '<line x1="' + x + '" y1="' + BASELINE + '" x2="' + x + '" y2="' + (BASELINE + 5) + '" stroke="currentColor" />';
+            s += '<text x="' + x + '" y="' + (BASELINE + 20) + '" text-anchor="middle" font-size="12" fill="currentColor">' + k + '</text>';
+        }
+        s += '<text x="' + (LEFT + PLOT_W / 2) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="14" font-style="italic" fill="currentColor">k (количество успехов)</text>';
+        s += '<text x="18" y="' + (TOP + PLOT_H / 2) + '" text-anchor="middle" font-size="14" transform="rotate(-90 18 ' + (TOP + PLOT_H / 2) + ')" fill="currentColor">P(X = k)</text>';
+        axesG.innerHTML = s;
+    }
+
+    function syncBars(n, values, maxY) {
+        const stepX = PLOT_W / (n + 1);
+        const barWidth = Math.max(2, stepX * 0.75);
+
+        while (bars.length < n + 1) {
+            const el = makeBar();
+            barsG.appendChild(el);
+            bars.push({ el: el, seen: false, cx: 0, cy: BASELINE, cw: barWidth, ch: 0 });
+        }
+        while (bars.length > n + 1) {
+            const b = bars.pop();
+            b.el.remove();
+        }
+
+        for (let k = 0; k <= n; k++) {
+            const b = bars[k];
+            const value = values[k];
+            const bh = (value / maxY) * PLOT_H;
+            const xCenter = LEFT + k * stepX + stepX / 2;
+            b.tx = xCenter - barWidth / 2;
+            b.ty = BASELINE - bh;
+            b.tw = barWidth;
+            b.th = Math.max(bh, 0);
+            if (!b.seen) {
+                b.cx = b.tx; b.cy = BASELINE; b.cw = b.tw; b.ch = 0;
+                b.seen = true;
+                renderBar(b);
+            }
+            
+            const isSelected = selA >= 0 && k >= selA && k <= selB;
+            b.el.classList.toggle("sel", isSelected);
+            b.el.dataset.k = k;
+            b.el.dataset.val = value.toFixed(4);
+
+            // Пункт 3 (A11y): Обновление доступных меток
+            let statusText = "Успехов: " + k + ", Вероятность: " + value.toFixed(4) + ".";
+            if (selA >= 0) {
+                statusText += isSelected ? " Входит в выбранный интервал." : " Вне интервала.";
+            } else {
+                statusText += " Кликните для выбора интервала.";
+            }
+            b.el.setAttribute("aria-label", statusText);
+        }
+    }
+
+    function updateRangeText(n, p) {
+        if (selA < 0) {
+            rangeEl.textContent = "Кликните по столбцу, чтобы выбрать интервал";
+            formulaEl.innerHTML = "P(a ≤ X ≤ b) = " + sumSign("a", "b") +
+                " C(n, k) · p<sup>k</sup> · (1 − p)<sup>n − k</sup>";
+            return;
+        }
+        if (selA === selB) {
+            rangeEl.textContent = "Выбрано: k = " + selA + " → кликните другой столбец для интервала";
+        }
+        if (selB > n) selB = n;
+        const prob = rangeProb(currentPMF, selA, selB);
+        const pStr = p.toFixed(2);
+        const qStr = (1 - p).toFixed(2);
+        rangeEl.innerHTML = "P(" + selA + " ≤ X ≤ " + selB + ") = <b>" + prob.toFixed(4) + "</b>";
+        formulaEl.innerHTML = "P(" + selA + " ≤ X ≤ " + selB + ") = " + sumSign(selA, selB) +
+            " C(" + n + ", k) · " + pStr + "<sup>k</sup> · " + qStr + "<sup>" + n + " − k</sup>" +
+            " = <b>" + prob.toFixed(4) + "</b>";
+    }
+
+    function draw() {
+        const n = Number(nSlider.value);
+        const p = Number(pSlider.value);
+        nValue.textContent = n;
+        pValue.textContent = p.toFixed(2);
+        setFill(nSlider);
+        setFill(pSlider);
+
+        const values = computeDistributions(n, p);
+        currentPMF = values;
+        const maxY = Math.max.apply(null, values) * 1.15 || 1;
+
+        drawAxes(n, maxY);
+        syncBars(n, values, maxY);
+
+        const stepX = PLOT_W / (n + 1);
+        mean.tx = LEFT + (n * p + 0.5) * stepX;
+        meanLn.setAttribute("y1", TOP);
+        meanLn.setAttribute("y2", BASELINE);
+
+        const sigma = Math.sqrt(n * p * (1 - p));
+        const mu = n * p;
+        statsEl.textContent = "μ = " + mu.toFixed(2) + ", σ = " + sigma.toFixed(2);
+        updateRangeText(n, p);
+
+        startAnim();
+    }
+
+    // Последний пункт: Умное позиционирование тултипа с проверкой краев экрана
+    function updateTooltipPosition(clientX, clientY) {
+        if (tooltip.style.opacity !== "1") return;
+        const rect = widget.getBoundingClientRect();
+        
+        let x = clientX - rect.left;
+        let y = clientY - rect.top;
+
+        tooltip.style.left = x + "px";
+        tooltip.style.top = y + "px";
+
+        // Проверяем физические границы тултипа на экране
+        const tRect = tooltip.getBoundingClientRect();
+        const wRect = widget.getBoundingClientRect();
+
+        // Сдвиг по горизонтали, если вылетает влево или вправо
+        if (tRect.left < wRect.left) {
+            tooltip.style.transform = "translate(" + (Math.abs(tRect.left - wRect.left) - tRect.width / 2 + 8) + "px, -130%)";
+        } else if (tRect.right > wRect.right) {
+            tooltip.style.transform = "translate(" + (wRect.right - tRect.right + tRect.width / 2 - 8) + "px, -130%)";
+        } else {
+            tooltip.style.transform = "translate(-50%, -130%)";
+        }
+    }
+
+    function showTooltipForElement(target) {
+        if (target.classList && target.classList.contains("bin-bar")) {
+            const k = Number(target.dataset.k);
+            const eq = Number(target.dataset.val);
+            const le = cdf[k];
+            const ge = tail[k];
+            tooltip.innerHTML =
+                '<span style="color:#ffffff !important; font-weight:bold; display:block; margin-bottom:2px;">k = ' + k + '</span>' +
+                '<span style="color:#cccccc !important;">P(X = k) = ' + eq.toFixed(4) + '</span><br>' +
+                '<span style="color:#cccccc !important;">P(X ≤ k) = ' + le.toFixed(4) + '</span><br>' +
+                '<span style="color:#cccccc !important;">P(X ≥ k) = ' + ge.toFixed(4) + '</span>';
+            tooltip.style.opacity = "1";
+        }
+    }
+
+    graph.addEventListener("mouseover", function(e) {
+        showTooltipForElement(e.target);
+    });
+    graph.addEventListener("mousemove", function(e) {
+        updateTooltipPosition(e.clientX, e.clientY);
+    });
+    graph.addEventListener("mouseout", function(e) {
+        if (e.target.classList && e.target.classList.contains("bin-bar")) {
+            tooltip.style.opacity = "0";
+            tooltip.style.transform = "translate(-50%, -130%)";
+        }
+    });
+
+    // Пункт 3 (A11y): Показ тултипа при фокусе с клавиатуры
+    graph.addEventListener("focusin", function(e) {
+        const t = e.target;
+        if (t.classList && t.classList.contains("bin-bar")) {
+            showTooltipForElement(t);
+            const bRect = t.getBoundingClientRect();
+            updateTooltipPosition(bRect.left + bRect.width / 2, bRect.top);
+        }
+    });
+    graph.addEventListener("focusout", function(e) {
+        if (e.target.classList && e.target.classList.contains("bin-bar")) {
+            tooltip.style.opacity = "0";
+            tooltip.style.transform = "translate(-50%, -130%)";
+        }
+    });
+
+    function handleSelection(k) {
+        if (selA < 0 || selA !== selB) {
+            selA = selB = k;
+        } else {
+            selA = Math.min(selA, k);
+            selB = Math.max(selB, k);
+        }
+        const n = Number(nSlider.value);
+        const p = Number(pSlider.value);
+        for (let i = 0; i < bars.length; i++) {
+            const isSelected = i >= selA && i <= selB;
+            bars[i].el.classList.toggle("sel", isSelected);
+            
+            // Обновляем доступную метку после изменения выбора
+            let value = Number(bars[i].el.dataset.val);
+            let statusText = "Успехов: " + i + ", Вероятность: " + value.toFixed(4) + ".";
+            statusText += isSelected ? " Входит в выбранный интервал." : " Вне интервала.";
+            bars[i].el.setAttribute("aria-label", statusText);
+        }
+        updateRangeText(n, p);
+    }
+
+    graph.addEventListener("click", function(e) {
+        const t = e.target;
+        if (!(t.classList && t.classList.contains("bin-bar"))) return;
+        handleSelection(Number(t.dataset.k));
+    });
+
+    // Пункт 3 (A11y): Обработка клавиатурных стрелок, пробела и Enter
+    graph.addEventListener("keydown", function(e) {
+        const t = e.target;
+        if (!(t.classList && t.classList.contains("bin-bar"))) return;
+        const k = Number(t.dataset.k);
+        const n = Number(nSlider.value);
+
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleSelection(k);
+        } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            const nextBar = barsG.querySelector('[data-k="' + Math.min(n, k + 1) + '"]');
+            if (nextBar) nextBar.focus();
+        } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            const prevBar = barsG.querySelector('[data-k="' + Math.max(0, k - 1) + '"]');
+            if (prevBar) prevBar.focus();
+        }
+    });
+
+    nSlider.addEventListener("input", function() {
+        if (selA > Number(nSlider.value)) { selA = -1; selB = -1; }
+        draw();
+    });
+    pSlider.addEventListener("input", draw);
+    draw();
+})();
+</script>
+
+</body>
+</html>

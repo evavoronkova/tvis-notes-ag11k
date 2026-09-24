@@ -6,6 +6,7 @@
 # Модули
 - [Модуль 1. Графы](unit_01/unit_01_00.md)
   - [Графы](unit_01/unit_01_01_graphs.md)
+  - [Неорграфы](unit_01/unit_01_01_undirected_graphs.md)
 - [Модуль 2. Комбинаторика](unit_02/unit_02_00.md)
 - [Модуль 3. Классическая вероятность](unit_03/unit_03_00.md)
 - [Модуль 4. Испытания Бернулли](unit_04/unit_04_00.md)
@@ -21,8 +22,12 @@
   - [Свойства](unit_06/unit_06_03_properties.md)
   - [Математическое ожидание геометрического и биномиального распределений](unit_06/unit_06_04_distributions.md)
   - [Подсчёт числа рёбер и треугольников с случайных графах](unit_06/unit_06_05_random_graphs.md)
+  - [Задачи](unit_06/unit_06_problems.md) 
 - [Модуль 7. Дисперсия](unit_07/unit_07_00.md)
   - [Дисперсия](unit_07/unit_07_01_variation.md)
+- [Вероятность на ЕГЭ](unit_ege/unit_ege_00.md)
+  - [Задача 6](unit_ege/unit_ege_06.md)
+  - [Нарешка (сборник)](unit_ege/unit_ege_06_grinding.md)
 
 # Дополнительно
 

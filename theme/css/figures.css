@@ -135,3 +135,23 @@
         font-size: 0.85rem;
     }
 }
+
+
+#binomial .histogram-wrapper {
+  position: relative;
+  max-width: 700px;
+  margin: 25px auto;
+}
+
+#binomial .x-label {
+  text-align: center;
+  margin-top: 4px;
+}
+
+#binomial .y-label {
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  white-space: nowrap;
+}
