@@ -7,7 +7,7 @@ $$X(\omega) = \sum\limits_{i = 1}^n w_i,\;\; \text{где} \;\; \omega = (w_1, \
   $$ P(X = k) = C_n^k \cdot p^k \cdot (1-p)^{n - k}.$$
 - Говорят, что величина $X$ имеет **_биномиальное распределение_** и  обозначают $Binom(n,p)$.
 
-<div class="math-block definition">
+<div class="math-block definition" id="definition-binom-distr">
 
 Cлучайная величина $X:\Omega \rightarrow \{0, 1, \ldots, n\}$ на произвольном пространстве элементарных исходов имеет **биномиальное распределение**, если она принимает значения от $0$ до $n$ с вероятностями
 $$ P(X = k) = C_n^k p^k (1-p)^{n - k}$$
@@ -42,7 +42,6 @@ $$ P(X = k) = C_n^k p^k (1-p)^{n - k}$$
 <iframe src="binomial-widget-improved (7).html" width="100%" height="700" frameborder="0" scrolling="no" style="border: none; overflow: hidden;"></iframe>
 
 
-<iframe src="binomial-widget-fixed (2).html" width="100%" height="700" frameborder="0" scrolling="no" style="border: none; overflow: hidden;"></iframe>
 
 
 

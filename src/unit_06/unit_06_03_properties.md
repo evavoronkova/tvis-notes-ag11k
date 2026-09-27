@@ -16,7 +16,7 @@
 
   $$E(X+Y) = \sum\limits_{i=1}^n \Big( X(\omega_i) +Y(\omega_i)\Big)\cdot p_i = \sum\limits_{i=1}^n \Big( X(\omega_i)\cdot p_i +Y(\omega_i)\cdot p_i\Big) = EX + EY.$$
 
-Сформлируем общее утверждение:  
+Сформулируем общее утверждение:  
 
 <div class="math-block definition">
 
@@ -69,13 +69,15 @@ $$ E(a\cdot X+b \cdot Y)=a\cdot EX + b \cdot EY. $$
   
   т.е. $X: \Omega \to \{\alpha_1, \ldots, \alpha_k\},\;\; Y: \Omega \to \{\beta_1, \ldots, \beta_m\}$. 
 - По определению   
-  $$E(X\cdot Y) = \sum\limits_{i = 1}^{k} \sum\limits_{j = 1}^m y_i \cdot z_j \cdot P(X = y_i, Y = z_j)= $$
+  $$E(X\cdot Y) = \sum\limits_{i = 1}^{k} \sum\limits_{j = 1}^m \alpha_i \cdot \beta_j \cdot P(X = \alpha_i, Y = \beta_j)= $$
   
-- так как $X$ и $Y$ --- независимы, то $P(X = \alpha, Y = \beta) = P(X = \alpha) \cdot P(Y = \beta)$, и в продолжении предыдущего равенства можно записать
+  так как $X$ и $Y$ --- независимы, то $P(X = \alpha, Y = \beta) = P(X = \alpha) \cdot P(Y = \beta)$, 
+  
+  и в продолжении предыдущего равенства можно записать
 
-  $$ =  \sum\limits_{i = 1}^{k} \sum\limits_{j = 1}^m y_i \cdot z_j \cdot P(X = y_i) \cdot P(Y = z_j)= $$
+  $$ =  \sum\limits_{i = 1}^{k} \sum\limits_{j = 1}^m \alpha_i \cdot \beta_j \cdot P(X = \alpha_i) \cdot P(Y = \beta_j)= $$
 - соберём отдельно суммирование по $i$ и $j$: 
-  $$ = \left(\sum\limits_{i = 1}^{k} y_i\cdot P(X = y_i) \right) \cdot \left(\sum\limits_{j = 1}^m  z_j   \cdot P(Y = z_j)\right) = EX\cdot EY.$$
+  $$ = \left(\sum\limits_{i = 1}^{k} \alpha_i\cdot P(X = \alpha_i) \right) \cdot \left(\sum\limits_{j = 1}^m  \beta_j   \cdot P(Y = \beta_j)\right) = EX\cdot EY.$$
 
 
 <div class="math-block remark">

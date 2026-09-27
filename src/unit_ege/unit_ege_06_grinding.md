@@ -1,5 +1,7 @@
 # Задания №6 по номерам вариантов
 
+В разделе собраны задачи $6$ из первой части вариантов из [сборника типовых вариантов экзаменационных заданий](https://www.chitai-gorod.ru/product/ege-2027-37-tvez-matematika-profil-nyj-uroven-37-variantov-tipovye-varianty-ekzamenacionnyh-zadanij-3180822).
+
 <div class="task ege" id="task-1">
 
 
@@ -55,7 +57,7 @@ Y \sim
 \begin{pmatrix}
 0 & 2 & 4 & 6 & 8 & 10 \\
 0.2 & 0.15 & 0.05 & 0.25 & 0.1 & 0.25
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 Найдите вероятность события $2<Y\leqslant 11$.
@@ -76,7 +78,7 @@ Y \sim
 \begin{pmatrix}
 1 & 2 & 3 & 4 & 5 & 6 \\
 0.2 & 0.15 & 0.05 & 0.25 & 0.1 & 0.25
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 Найдите вероятность события $3<Y<6$.
@@ -95,7 +97,7 @@ Y \sim
 \begin{pmatrix}
 3 & 4 & 5 & 6 & 7 & 8 \\
 0.25 & 0.25 & 0.2 & 0.15 & 0.1 & 0.05
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 Найдите вероятность события $-1\leqslant Y<7$.
@@ -114,7 +116,7 @@ Y \sim
 \begin{pmatrix}
 3 & 5 & 7 & 9 & 11 \\
 0.25 & 0.25 & 0.2 & 0.15 & 0.1 & 0.05
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 Найдите вероятность события $3\leqslant Y \leqslant 9$.
@@ -133,7 +135,7 @@ Y \sim
 \begin{pmatrix}
 2 & 3 & 4 & 5 & 6 & 7 \\
 0.1 & 0.2 & 0.25 & 0.25 & 0.15 & 0.05
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 Найдите вероятность события $3<Y<7$.
@@ -151,8 +153,8 @@ $$
 Z \sim
 \begin{pmatrix}
 0 & 1 \\
-\cfrac{3}{5} & \cfrac{2}{5}
-\end{pmatrix}
+\frac{3}{5} & \frac{2}{5}
+\end{pmatrix}.
 $$
 
 Найдите дисперсию случайной величины $Z$.
@@ -171,7 +173,7 @@ Z \sim
 \begin{pmatrix}
 0 & 1 \\
 0.7 & 0.3
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 Найдите дисперсию случайной величины $Z$.
@@ -190,7 +192,7 @@ Z \sim
 \begin{pmatrix}
 0 & 1 \\
 0.2 & 0.8
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 Найдите дисперсию случайной величины $Z$.
@@ -209,7 +211,7 @@ Z \sim
 \begin{pmatrix}
 0 & 1 \\
 0.9 & 0.1
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 Найдите дисперсию случайной величины $Z$.
@@ -228,7 +230,7 @@ Z \sim
 \begin{pmatrix}
 0 & 1 \\
 0.1 & 0.9
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 Найдите дисперсию случайной величины $Z$.
@@ -247,7 +249,7 @@ X \sim
 \begin{pmatrix}
 0 & 1 & 3 & 5 & 7 \\
 0.2 & 0.25 & 0.15 & 0.1 & 0.3
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 [Посмотреть разбор](./unit_ege_06.md#task-type-4)
@@ -266,7 +268,7 @@ X \sim
 \begin{pmatrix}
 0 & 2 & 4 & 6 & 8 \\
 0.35 & 0.15 & 0.1 & 0.1 & 0.3
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -283,7 +285,7 @@ X \sim
 \begin{pmatrix}
 0 & 1 & 2 & 4 & 8 \\
 0.25 & 0.2 & 0.35 & 0.1 & 0.1
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -300,7 +302,7 @@ X \sim
 \begin{pmatrix}
 3 & 6 & 9 & 12 & 15 \\
 0.5 & 0.15 & 0.2 & 0.05 & 0.1
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -317,7 +319,7 @@ X \sim
 \begin{pmatrix}
 1 & 2 & 3 & 4 & 5 \\
 0.2 & 0.15 & 0.3 & 0.15 & 0.2
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -405,7 +407,7 @@ X \sim
 \begin{pmatrix}
 1 & 2 & 3 \\
 \cfrac25 & \cfrac15 & \cfrac25
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -422,7 +424,7 @@ X \sim
 \begin{pmatrix}
 1 & 3 & 5 \\
 0.1 & 0.8 & 0.1
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -439,7 +441,7 @@ X \sim
 \begin{pmatrix}
 1 & 3 & 5 \\
 0.3 & 0.4 & 0.3
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -456,7 +458,7 @@ X \sim
 \begin{pmatrix}
 1 & 2 & 4 \\
 0.4 & 0.2 & 0.4
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -473,7 +475,7 @@ X \sim
 \begin{pmatrix}
 1 & 2 & 4 \\
 0.2 & 0.6 & 0.2
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -489,7 +491,7 @@ Y \sim
 \begin{pmatrix}
 0 & 3 \\
 0.5 & 0.5
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -506,7 +508,7 @@ Y \sim
 \begin{pmatrix}
 0 & 3 \\
 0.1 & 0.9
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -523,7 +525,7 @@ Y \sim
 \begin{pmatrix}
 0 & 3 \\
 0.2 & 0.8
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -540,7 +542,7 @@ Y \sim
 \begin{pmatrix}
 0 & 3 \\
 0.8 & 0.2
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>
@@ -556,7 +558,7 @@ Y \sim
 \begin{pmatrix}
 0 & 4 \\
 0.9 & 0.1
-\end{pmatrix}
+\end{pmatrix}.
 $$
 
 </div>

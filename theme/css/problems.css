@@ -116,22 +116,39 @@
     border-left-color: #a65d5d;
 }
 
+
+
 .task.hard::before {
     content: "Задача " counter(task) " · ★★★";
 }
 
-.task.ege {
-    border-left-color: #1E105C;
-}
+
 
 .task.hard::before {
     content: "Задача " counter(task) " · ★★★";
 }
 
 .task.ege::before {
-    content: "Задача " counter(task) " · ★★☆";
+    content: "Задача " counter(task) " · 🎲";
 }
 
+/* EGE */
+
+.task.egebase {
+    border-left-color: #1E105C;
+}
+
+.task.ege {
+    border-left-color: #1E105C;
+}
+
+.task.egebase::before {
+    content: "Задача " counter(task) " · 🎲";
+}
+
+.task.ege::before {
+    content: "Задача " counter(task) " · 🎲🎲";
+}
 
 /* =========================================================
    5. Text inside task

@@ -26,8 +26,12 @@
 - [Модуль 7. Дисперсия](unit_07/unit_07_00.md)
   - [Дисперсия](unit_07/unit_07_01_variation.md)
 - [Вероятность на ЕГЭ](unit_ege/unit_ege_00.md)
+  - [Задача 4](unit_ege/unit_ege_04.md)
+  - [Задача 5](unit_ege/unit_ege_05.md)
   - [Задача 6](unit_ege/unit_ege_06.md)
-  - [Нарешка (сборник)](unit_ege/unit_ege_06_grinding.md)
+  - [Нарешка (задача 04)](unit_ege/unit_ege_04_grinding.md)
+  - [Нарешка (задача 05)](unit_ege/unit_ege_05_grinding.md)
+  - [Нарешка (задача 06)](unit_ege/unit_ege_06_grinding.md)
 
 # Дополнительно
 
