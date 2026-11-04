@@ -54,7 +54,7 @@ $$ E(a\cdot X+b \cdot Y)=a\cdot EX + b \cdot EY. $$
 ## Математическое ожидание произведения
 
 
-<div class="math-block definition">
+<div class="math-block definition" id="expectation-independence">
 
 Пусть $X$ и $Y$ --- случайные величины, определённые на  вероятностном пространстве $\Omega$. 
 

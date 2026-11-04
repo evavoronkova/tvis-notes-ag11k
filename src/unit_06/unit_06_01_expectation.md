@@ -55,7 +55,7 @@ $$X \sim \begin{pmatrix} 1 & 2 & 3 & \dots & k & \dots \\ 0.5 & 0.25 & 0.125 & \
 
  [Бинарная случайная величина](../unit_05/unit_05_03_indicator.md) имеет распределение $I \sim \begin{pmatrix} 0 & 1 \\ q & p \end{pmatrix}$, где $p\in (0,1), \, q = 1 - p$.
 
-<div class="math-block definition">
+<div class="math-block definition" id = "expectation_indicator">
 
 ***Математическое ожидание бинарной случайной*** величины равно 
 

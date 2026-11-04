@@ -32,7 +32,7 @@
 
 /* Небольшое увеличение при наведении */
 .figure img:hover {
-    transform: scale(1.01);
+    transform: scale(1.05);
 
     box-shadow:
         0 8px 24px rgba(0, 0, 0, 0.12);
@@ -60,25 +60,30 @@
     color: inherit;
 }
 
-/* ---------------------------------------------------------
-   Размеры
-   --------------------------------------------------------- */
+/* Размеры изображений */
 
 .figure--small img {
+    width: 100%;
     max-width: 500px;
+    height: auto;
 }
 
 .figure--medium img {
+    width: 100%;
     max-width: 750px;
+    height: auto;
 }
 
 .figure--large img {
+    width: 100%;
     max-width: 1000px;
+    height: auto;
 }
 
 .figure--wide img {
     width: 100%;
     max-width: 1200px;
+    height: auto;
 }
 
 /* ---------------------------------------------------------
@@ -154,4 +159,17 @@
   top: 50%;
   transform: translateY(-50%) rotate(-90deg);
   white-space: nowrap;
+}
+
+.figure img[src$=".svg"] {
+    cursor: zoom-in;
+    transition: transform 0.2s ease;
+    transform-origin: center center;
+}
+
+.figure img[src$=".svg"].zoomed {
+    transform: scale(1.5);
+    cursor: zoom-out;
+    position: relative;
+    z-index: 100;
 }

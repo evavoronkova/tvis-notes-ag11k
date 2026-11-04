@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", function () {
 
     const figures = document.querySelectorAll(".figure");
@@ -7,26 +8,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     /*
-     * Номер главы.
-     *
-     * Если у страницы есть:
-     *
-     * <body data-chapter="1">
-     *
-     * используется этот номер.
-     *
-     * Иначе определяется номером первого заголовка h1,
-     * если он начинается с числа.
+     * Нумерация рисунков
      */
 
     let chapterNumber = document.body.dataset.chapter;
 
     if (!chapterNumber) {
-
         const h1 = document.querySelector("h1");
 
         if (h1) {
-
             const match = h1.textContent.trim().match(/^(\d+)/);
 
             if (match) {
@@ -34,11 +24,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     }
-
-    /*
-     * Если номер главы определить не удалось,
-     * используем номер 1.
-     */
 
     chapterNumber = chapterNumber || "1";
 
@@ -53,5 +38,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (caption) {
             caption.dataset.figureNumber = number;
         }
+
+        /*
+         * Увеличение SVG по клику
+         */
+
+        const images = figure.querySelectorAll('img[src$=".svg"], img[src$=".SVG"]');
+
+        images.forEach(function (img) {
+            img.addEventListener("click", function () {
+                img.classList.toggle("zoomed");
+            });
+        });
     });
 });

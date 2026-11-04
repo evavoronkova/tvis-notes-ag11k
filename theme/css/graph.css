@@ -1,0 +1,19 @@
+/* Responsive figures generated from standalone TikZ files */
+.graph-figure {
+  margin: 1.5rem auto;
+  text-align: center;
+  max-width: 850px;
+}
+.graph-figure img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.graph-figure figcaption {
+  margin-top: 0.45rem;
+  color: var(--fg, #555);
+  font-size: 1.1rem;
+  text-align: center;
+}

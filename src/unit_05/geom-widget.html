@@ -1,0 +1,414 @@
+<div id="geometric-widget" style="margin: 20px 0; font-family: system-ui, sans-serif; color: var(--fg, #333); position: relative;">
+  <svg id="geom-graph" viewBox="0 0 700 400" style="width: 100%; height: auto; background: var(--bg, #f7f7f5); border-radius: 4px; overflow: visible;" role="img" aria-label="График геометрического распределения">
+    <g id="geom-axes"></g>
+    <line id="geom-mean" stroke="#D93025" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.8" />
+    <g id="geom-bars"></g>
+  </svg>
+
+  <div class="geom-controls">
+    <div class="geom-control-group">
+      <label for="geom-p" style="font-weight: bold; min-width: 25px;">p =</label>
+      <input id="geom-p" type="range" min="0.05" max="0.95" step="0.01" value="0.30" class="geom-slider" aria-label="Вероятность успеха p">
+      <span id="geom-pv" style="font-variant-numeric: tabular-nums; min-width: 35px;">0.30</span>
+    </div>
+    <div class="geom-control-group">
+      <label for="geom-kmax" style="font-weight: bold; min-width: 50px;">k max =</label>
+      <input id="geom-kmax" type="range" min="5" max="30" value="15" step="1" class="geom-slider" aria-label="Максимальное значение k">
+      <span id="geom-kmaxv" style="font-variant-numeric: tabular-nums; min-width: 20px;">15</span>
+    </div>
+  </div>
+
+  <div id="geom-stats" style="text-align: center; margin-top: 12px; font-size: 13px; opacity: 0.75; font-variant-numeric: tabular-nums;"></div>
+  <div id="geom-range" style="text-align: center; margin-top: 4px; font-size: 13px; font-variant-numeric: tabular-nums;"></div>
+  <div id="geom-formula" style="text-align: center; margin-top: 4px; font-size: 13px;"></div>
+  <div style="text-align: center;">
+    <button id="geom-reset" type="button" style="display: none; margin-top: 8px; padding: 4px 14px; font-size: 12px; font-family: inherit; color: inherit; background: transparent; border: 1px solid var(--table-border-color, #cccccc); border-radius: 4px; cursor: pointer;">Сбросить выделение</button>
+  </div>
+
+  <div id="geom-tooltip" role="tooltip" style="position: absolute; pointer-events: none; opacity: 0; background: #222222 !important; color: #ffffff !important; padding: 8px 12px; border-radius: 4px; font-size: 13px; line-height: 1.4; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.1s ease; z-index: 99999 !important; transform: translate(-50%, -130%); white-space: nowrap;"></div>
+</div>
+
+<style>
+  .geom-bar {
+    transition: fill 0.15s ease, opacity 0.15s ease;
+    cursor: pointer;
+  }
+  .geom-bar:hover { fill: #0B8043; opacity: 1; }
+
+  .geom-bar.sel { fill: #F29900; opacity: 1; }
+  .geom-bar.sel:hover { fill: #C77800; }
+
+  .geom-sum { display: inline-block; vertical-align: middle; text-align: center; font-size: 11px; line-height: 1.15; margin: 0 2px; }
+  .geom-sum .geom-sum-sign { display: block; font-size: 1.4em; line-height: 1; }
+
+  #geom-reset:hover { border-color: #0F9D58; color: #0F9D58; }
+  #geom-reset:focus-visible { outline: 2px solid rgba(15,157,88,0.4); outline-offset: 1px; }
+
+  .geom-controls { display: flex; gap: 24px; margin-top: 25px; flex-wrap: wrap; justify-content: center; }
+  .geom-control-group { display: flex; align-items: center; gap: 12px; }
+
+  .geom-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    --geom-fill: 50%;
+    width: 160px;
+    background: transparent;
+    cursor: pointer;
+    height: 30px;
+  }
+  .geom-slider:focus { outline: none; }
+
+  .geom-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #0F9D58 var(--geom-fill), var(--table-border-color, #e0e0e0) var(--geom-fill));
+    height: 6px; border-radius: 3px;
+  }
+  .geom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    margin-top: -7px;
+    background-color: #0F9D58;
+    height: 20px; width: 20px; border-radius: 50%;
+    transition: background-color 0.1s ease, transform 0.1s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .geom-slider:hover::-webkit-slider-thumb { background-color: #0B8043; transform: scale(1.1); }
+  .geom-slider:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(15,157,88,0.35); }
+
+  .geom-slider::-moz-range-track {
+    background: linear-gradient(to right, #0F9D58 var(--geom-fill), var(--table-border-color, #e0e0e0) var(--geom-fill));
+    height: 6px; border-radius: 3px;
+  }
+  .geom-slider::-moz-range-thumb {
+    background-color: #0F9D58; border: none;
+    height: 20px; width: 20px; border-radius: 50%;
+    transition: background-color 0.1s ease, transform 0.1s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .geom-slider:hover::-moz-range-thumb { background-color: #0B8043; transform: scale(1.1); }
+  .geom-slider:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px rgba(15,157,88,0.35); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .geom-bar, .geom-slider::-webkit-slider-thumb, .geom-slider::-moz-range-thumb { transition: none; }
+  }
+
+  @media (max-width: 600px) {
+    .geom-controls { flex-direction: column; align-items: center; gap: 16px; }
+    .geom-slider { width: 65vw; }
+  }
+</style>
+
+<script>
+(function() {
+    "use strict";
+
+    const pSlider    = document.getElementById("geom-p");
+    const kMaxSlider = document.getElementById("geom-kmax");
+    const pValue     = document.getElementById("geom-pv");
+    const kMaxValue  = document.getElementById("geom-kmaxv");
+    const graph      = document.getElementById("geom-graph");
+    const axesG      = document.getElementById("geom-axes");
+    const barsG      = document.getElementById("geom-bars");
+    const meanLn     = document.getElementById("geom-mean");
+    const statsEl    = document.getElementById("geom-stats");
+    const rangeEl    = document.getElementById("geom-range");
+    const formulaEl  = document.getElementById("geom-formula");
+    const resetBtn   = document.getElementById("geom-reset");
+    const tooltip    = document.getElementById("geom-tooltip");
+    const widget     = document.getElementById("geometric-widget");
+
+    if (!pSlider || !kMaxSlider || !graph) return;
+
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const W = 700, H = 400;
+    const LEFT = 60, RIGHT = 30, TOP = 20, BOTTOM = 50;
+    const PLOT_W = W - LEFT - RIGHT;
+    const PLOT_H = H - TOP - BOTTOM;
+    const BASELINE = H - BOTTOM;
+    const ANIM_MS = 250;
+
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function clamp01(x) { return Math.min(1, Math.max(0, x)); }
+
+    // Геометрическое распределение P(X = k) = (1 - p)^k * p
+    function computePMF(kMax, p) {
+        const pmf = new Array(kMax + 1);
+        const q = 1 - p;
+        for (let k = 0; k <= kMax; k++) {
+            pmf[k] = Math.pow(q, k) * p;
+        }
+        return pmf;
+    }
+
+    let cdf = [];    // cdf[k] = P(X <= k) = 1 - (1 - p)^(k+1)
+    let tail = [];   // tail[k] = P(X >= k) = (1 - p)^k
+    let selA = -1, selB = -1;
+
+    function computeDistributions(kMax, p) {
+        const pmf = computePMF(kMax, p);
+        const q = 1 - p;
+        cdf = new Array(kMax + 1);
+        tail = new Array(kMax + 1);
+
+        for (let k = 0; k <= kMax; k++) {
+            cdf[k] = clamp01(1 - Math.pow(q, k + 1));
+            tail[k] = clamp01(Math.pow(q, k));
+        }
+        return pmf;
+    }
+
+    function rangeProb(pmf, a, b) {
+        let s = 0;
+        for (let k = a; k <= b; k++) s += pmf[k];
+        return clamp01(s);
+    }
+
+    const bars = [];
+    const mean = { cx: LEFT, tx: LEFT };
+    let rafId = null, animStart = 0;
+    let currentPMF = [];
+
+    function makeBar() {
+        const r = document.createElementNS(SVG_NS, "rect");
+        r.setAttribute("class", "geom-bar");
+        r.setAttribute("fill", "#0F9D58");
+        r.setAttribute("rx", "2");
+        r.setAttribute("opacity", "0.85");
+        return r;
+    }
+
+    function renderBar(b) {
+        b.el.setAttribute("x", b.cx);
+        b.el.setAttribute("y", b.cy);
+        b.el.setAttribute("width", b.cw);
+        b.el.setAttribute("height", b.ch);
+    }
+
+    function tick(now) {
+        const t = Math.min((now - animStart) / ANIM_MS, 1);
+        const e = 1 - Math.pow(1 - t, 3);
+        for (let i = 0; i < bars.length; i++) {
+            const b = bars[i];
+            b.cx = b.fx + (b.tx - b.fx) * e;
+            b.cy = b.fy + (b.ty - b.fy) * e;
+            b.cw = b.fw + (b.tw - b.fw) * e;
+            b.ch = b.fh + (b.th - b.fh) * e;
+            renderBar(b);
+        }
+        mean.cx = mean.fx + (mean.tx - mean.fx) * e;
+        meanLn.setAttribute("x1", mean.cx);
+        meanLn.setAttribute("x2", mean.cx);
+        if (t < 1) {
+            rafId = requestAnimationFrame(tick);
+        } else {
+            rafId = null;
+            for (let i = 0; i < bars.length; i++) {
+                const b = bars[i];
+                b.cx = b.tx; b.cy = b.ty; b.cw = b.tw; b.ch = b.th;
+                renderBar(b);
+            }
+            mean.cx = mean.tx;
+            meanLn.setAttribute("x1", mean.cx);
+            meanLn.setAttribute("x2", mean.cx);
+        }
+    }
+
+    function startAnim() {
+        for (let i = 0; i < bars.length; i++) {
+            const b = bars[i];
+            b.fx = b.cx; b.fy = b.cy; b.fw = b.cw; b.fh = b.ch;
+        }
+        mean.fx = mean.cx;
+        if (reduceMotion) {
+            animStart = -ANIM_MS;
+            tick(0);
+            return;
+        }
+        animStart = performance.now();
+        if (!rafId) rafId = requestAnimationFrame(tick);
+    }
+
+    function fillPct(slider) {
+        const min = parseFloat(slider.min) || 0;
+        const max = parseFloat(slider.max) || 1;
+        const val = parseFloat(slider.value);
+        return ((val - min) / (max - min)) * 100;
+    }
+
+    function setFill(slider) {
+        slider.style.setProperty("--geom-fill", fillPct(slider) + "%");
+    }
+
+    function sumSign(a, b) {
+        return '<span class="geom-sum"><span style="display:block">' + b + '</span>' +
+               '<span class="geom-sum-sign">\u2211</span>' +
+               '<span style="display:block">k = ' + a + '</span></span>';
+    }
+
+    function drawAxes(kMax, maxY) {
+        let s = "";
+        for (let i = 0; i <= 5; i++) {
+            const y = BASELINE - (i * PLOT_H) / 5;
+            const v = (maxY * i) / 5;
+            s += '<line x1="' + LEFT + '" y1="' + y + '" x2="' + (W - RIGHT) + '" y2="' + y + '" stroke="var(--table-border-color, #d8d8d8)" stroke-dasharray="4 4" />';
+            s += '<text x="' + (LEFT - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="12" fill="currentColor">' + v.toFixed(2) + '</text>';
+        }
+        s += '<line x1="' + LEFT + '" y1="' + TOP + '" x2="' + LEFT + '" y2="' + BASELINE + '" stroke="currentColor" stroke-width="1.5" />';
+        s += '<line x1="' + LEFT + '" y1="' + BASELINE + '" x2="' + (W - RIGHT) + '" y2="' + BASELINE + '" stroke="currentColor" stroke-width="1.5" />';
+
+        const stepX = PLOT_W / (kMax + 1);
+        const labelEvery = Math.ceil(kMax / 15);
+        for (let k = 0; k <= kMax; k++) {
+            if (!(kMax <= 15 || k % labelEvery === 0 || k === kMax)) continue;
+            const x = LEFT + k * stepX + stepX / 2;
+            s += '<line x1="' + x + '" y1="' + BASELINE + '" x2="' + x + '" y2="' + (BASELINE + 5) + '" stroke="currentColor" />';
+            s += '<text x="' + x + '" y="' + (BASELINE + 20) + '" text-anchor="middle" font-size="12" fill="currentColor">' + k + '</text>';
+        }
+        s += '<text x="' + (LEFT + PLOT_W / 2) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="14" font-style="italic" fill="currentColor">k (количество неудач до 1-го успеха)</text>';
+        s += '<text x="18" y="' + (TOP + PLOT_H / 2) + '" text-anchor="middle" font-size="14" transform="rotate(-90 18 ' + (TOP + PLOT_H / 2) + ')" fill="currentColor">P(X = k)</text>';
+        axesG.innerHTML = s;
+    }
+
+    function syncBars(kMax, values, maxY) {
+        const stepX = PLOT_W / (kMax + 1);
+        const barWidth = Math.max(2, stepX * 0.75);
+
+        while (bars.length < kMax + 1) {
+            const el = makeBar();
+            barsG.appendChild(el);
+            bars.push({ el: el, seen: false, cx: 0, cy: BASELINE, cw: barWidth, ch: 0 });
+        }
+        while (bars.length > kMax + 1) {
+            const b = bars.pop();
+            b.el.remove();
+        }
+
+        for (let k = 0; k <= kMax; k++) {
+            const b = bars[k];
+            const value = values[k];
+            const bh = (value / maxY) * PLOT_H;
+            const xCenter = LEFT + k * stepX + stepX / 2;
+            b.tx = xCenter - barWidth / 2;
+            b.ty = BASELINE - bh;
+            b.tw = barWidth;
+            b.th = Math.max(bh, 0);
+            if (!b.seen) {
+                b.cx = b.tx; b.cy = BASELINE; b.cw = b.tw; b.ch = 0;
+                b.seen = true;
+                renderBar(b);
+            }
+            b.el.classList.toggle("sel", selA >= 0 && k >= selA && k <= selB);
+            b.el.dataset.k = k;
+            b.el.dataset.val = value.toFixed(4);
+        }
+    }
+
+    function updateRangeText(kMax, p) {
+        if (resetBtn) resetBtn.style.display = (selA >= 0) ? "" : "none";
+        if (selA < 0) {
+            rangeEl.textContent = "Кликните по столбцу, чтобы выбрать интервал";
+            formulaEl.innerHTML = "P(a \u2264 X \u2264 b) = " + sumSign("a", "b") +
+                " (1 \u2212 p)<sup>k</sup> \u00b7 p";
+            return;
+        }
+        if (selA === selB) {
+            rangeEl.textContent = "Выбрано: k = " + selA + "  \u2192  кликните другой столбец для интервала";
+        }
+        if (selB > kMax) selB = kMax;
+        const prob = rangeProb(currentPMF, selA, selB);
+        const pStr = p.toFixed(2);
+        const qStr = (1 - p).toFixed(2);
+        rangeEl.innerHTML = "P(" + selA + " \u2264 X \u2264 " + selB + ") = <b>" + prob.toFixed(4) + "</b>";
+        formulaEl.innerHTML = "P(" + selA + " \u2264 X \u2264 " + selB + ") = " + sumSign(selA, selB) +
+            " " + qStr + "<sup>k</sup> \u00b7 " + pStr + " = <b>" + prob.toFixed(4) + "</b>";
+    }
+
+    function draw() {
+        const p = Number(pSlider.value);
+        const kMax = Number(kMaxSlider.value);
+        pValue.textContent = p.toFixed(2);
+        kMaxValue.textContent = kMax;
+        setFill(pSlider);
+        setFill(kMaxSlider);
+
+        const values = computeDistributions(kMax, p);
+        currentPMF = values;
+        const maxY = Math.max.apply(null, values) * 1.15 || 1;
+
+        drawAxes(kMax, maxY);
+        syncBars(kMax, values, maxY);
+
+        const mu = (1 - p) / p;
+        const sigma = Math.sqrt(1 - p) / p;
+
+        const stepX = PLOT_W / (kMax + 1);
+        mean.tx = LEFT + (mu + 0.5) * stepX;
+        // Ограничиваем линию математического ожидания видимой областью
+        if (mean.tx > W - RIGHT) mean.tx = W - RIGHT;
+        if (mean.tx < LEFT) mean.tx = LEFT;
+
+        meanLn.setAttribute("y1", TOP);
+        meanLn.setAttribute("y2", BASELINE);
+
+        statsEl.textContent = "\u03bc = " + mu.toFixed(2) + ",  \u03c3 = " + sigma.toFixed(2);
+        updateRangeText(kMax, p);
+
+        startAnim();
+    }
+
+    graph.addEventListener("mouseover", function(e) {
+        const t = e.target;
+        if (t.classList && t.classList.contains("geom-bar")) {
+            const k = Number(t.dataset.k);
+            const eq = Number(t.dataset.val);
+            const le = cdf[k];
+            const ge = tail[k];
+            tooltip.innerHTML =
+                '<span style="color:#ffffff !important; font-weight:bold; display:block; margin-bottom:2px;">k = ' + k + '</span>' +
+                '<span style="color:#cccccc !important;">P(X = k) = ' + eq.toFixed(4) + '</span><br>' +
+                '<span style="color:#cccccc !important;">P(X \u2264 k) = ' + le.toFixed(4) + '</span><br>' +
+                '<span style="color:#cccccc !important;">P(X \u2265 k) = ' + ge.toFixed(4) + '</span>';
+            tooltip.style.opacity = "1";
+        }
+    });
+    graph.addEventListener("mousemove", function(e) {
+        if (tooltip.style.opacity !== "1") return;
+        const rect = widget.getBoundingClientRect();
+        tooltip.style.left = (e.clientX - rect.left) + "px";
+        tooltip.style.top = (e.clientY - rect.top) + "px";
+    });
+    graph.addEventListener("mouseout", function(e) {
+        const t = e.target;
+        if (t.classList && t.classList.contains("geom-bar")) tooltip.style.opacity = "0";
+    });
+
+    graph.addEventListener("click", function(e) {
+        const t = e.target;
+        if (!(t.classList && t.classList.contains("geom-bar"))) return;
+        const k = Number(t.dataset.k);
+        if (selA >= 0 && selA === selB && k === selA) {
+            selA = selB = -1;
+        } else if (selA < 0 || selA !== selB) {
+            selA = selB = k;
+        } else {
+            selA = Math.min(selA, k);
+            selB = Math.max(selB, k);
+        }
+        const kMax = Number(kMaxSlider.value);
+        const p = Number(pSlider.value);
+        for (let i = 0; i < bars.length; i++) {
+            bars[i].el.classList.toggle("sel", i >= selA && i <= selB);
+        }
+        updateRangeText(kMax, p);
+    });
+
+    if (resetBtn) resetBtn.addEventListener("click", function() {
+        selA = selB = -1;
+        for (let i = 0; i < bars.length; i++) bars[i].el.classList.remove("sel");
+        updateRangeText(Number(kMaxSlider.value), Number(pSlider.value));
+    });
+
+    pSlider.addEventListener("input", draw);
+    kMaxSlider.addEventListener("input", draw);
+    draw();
+})();
+</script>

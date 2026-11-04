@@ -15,10 +15,12 @@ additional-css = [
     "theme/css/custom.css",
     "theme/css/figures.css",
     "theme/css/problems.css",
+    "theme/css/graph.css"
 ]
 
 additional-js = [
-    "theme/js/figures.js"
+    "theme/js/figures.js",
+    "theme/js/graph-editor.js"
 ]
 
 

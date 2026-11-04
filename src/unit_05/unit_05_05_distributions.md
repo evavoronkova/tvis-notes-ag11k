@@ -39,7 +39,7 @@ $$ P(X = k) = C_n^k p^k (1-p)^{n - k}$$
 
 <!-- Интерактивная диаграмма -->
 
-<iframe src="binomial-widget-improved (7).html" width="100%" height="700" frameborder="0" scrolling="no" style="border: none; overflow: hidden;"></iframe>
+<iframe src="binomial-widget.html" width="100%" height="700" frameborder="0" scrolling="no" style="border: none; overflow: hidden;"></iframe>
 
 
 
@@ -77,6 +77,12 @@ $$ P(X = k) = C_n^k p^k (1-p)^{n - k}$$
   
   - $P(Y<4) =P(Y \leqslant 3) = 1 - P(Y>3) = 1 - \left(\cfrac{5}{6}\right)^3 = \cfrac{91}{216}$.
 </div>
+
+
+<!-- Интерактивная диаграмма -->
+
+<iframe src="geom-widget.html" width="100%" height="700" frameborder="0" scrolling="no" style="border: none; overflow: hidden;"></iframe>
+
 
 ## Усечённое геометрическое распределение.
 

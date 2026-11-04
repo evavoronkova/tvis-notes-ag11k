@@ -44,7 +44,7 @@ $$X \sim \begin{pmatrix} 0 & 1 & 2 & \dots & k & \dots & n \\ q^n & C_n^1 pq^{n-
 -  $EX = E(I_1+ I_2 + \ldots + I_n) = EI_1 + EI_2 + \ldots + EI_n = p + p + \ldots + p = n\cdot p$.
 
 <details>
-<summary><b>TЕще jyjлгебраическое доказательство</b></summary>
+<summary><b>Алгебраическое доказательство</b></summary>
 
 <br>
 Приведем также и алгебраическое доказательство. 
@@ -60,3 +60,4 @@ $$X \sim \begin{pmatrix} 0 & 1 & 2 & \dots & k & \dots & n \\ q^n & C_n^1 pq^{n-
   $ =  n\cdot p \cdot (p+q)^{n-1} = n\cdot p$. 
 </details>
 </div>
+
