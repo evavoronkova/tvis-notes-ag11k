@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Кубическая парабола: выпуклость и вогнутость</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 18px;
+  font-family: Arial, sans-serif;
+  color: #27313a;
+  background: #f7f9fb;
+}
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  background: white;
+  border: 1px solid #dce2e8;
+  border-radius: 12px;
+}
+h2 { font-size: 20px; margin: 0 0 8px; }
+.subtitle { color: #687580; font-size: 14px; margin-bottom: 18px; }
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.control {
+  padding: 12px;
+  background: #f5f7f9;
+  border-radius: 8px;
+}
+.control label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+.control strong { color: #174f85; }
+input { width: 100%; accent-color: #174f85; }
+svg { display: block; width: 100%; height: auto; margin-top: 15px; }
+.info {
+  margin-top: 12px;
+  padding: 14px;
+  background: #f5f7f9;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.status {
+  margin-top: 12px;
+  padding: 13px;
+  border-left: 4px solid #23845d;
+  background: #eef6f1;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.status.concave { border-color: #792d45; background: #f8eff2; }
+.status.inflection { border-color: #9a7534; background: #fbf6e9; }
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #687580;
+}
+.legend span { display: flex; align-items: center; gap: 6px; }
+.swatch { width: 22px; height: 3px; display: inline-block; }
+@media(max-width:600px) {
+  .controls { grid-template-columns: 1fr; }
+  body { padding: 8px; }
+  .container { padding: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Выпуклость и вогнутость кубической параболы</h2>
+  <div class="subtitle">Функция f(x) = ax³</div>
+
+  <div class="controls">
+    <div class="control">
+      <label><span>Коэффициент a</span><strong id="aValue">0.20</strong></label>
+      <input id="aSlider" type="range" min="0.05" max="0.5"
+             step="0.05" value="0.2">
+    </div>
+    <div class="control">
+      <label><span>Точка касания x₀</span><strong id="xValue">1.00</strong></label>
+      <input id="xSlider" type="range" min="-2" max="2"
+             step="0.05" value="1">
+    </div>
+  </div>
+
+  <svg id="graph" viewBox="0 0 760 440"
+       aria-label="График кубической параболы">
+    <defs>
+      <clipPath id="plotClip">
+        <rect x="65" y="25" width="650" height="370"/>
+      </clipPath>
+    </defs>
+    <g id="grid"></g>
+    <g id="axes"></g>
+    <g clip-path="url(#plotClip)">
+      <path id="curve" fill="none" stroke="#174f85"
+            stroke-width="3.2" stroke-linecap="round"/>
+      <path id="tangent" fill="none" stroke="#23845d"
+            stroke-width="2.4"/>
+      <path id="chord" fill="none" stroke="#792d45"
+            stroke-width="2.4" stroke-dasharray="8 5"/>
+      <line id="inflectionLine" stroke="#9a7534"
+            stroke-width="1.5" stroke-dasharray="5 5"/>
+      <circle id="point" r="5.5" fill="#23845d"
+              stroke="white" stroke-width="2"/>
+      <circle id="leftPoint" r="4.5" fill="#792d45"/>
+      <circle id="rightPoint" r="4.5" fill="#792d45"/>
+    </g>
+    <g id="labels"></g>
+  </svg>
+
+  <div class="legend">
+    <span><i class="swatch" style="background:#174f85"></i>График</span>
+    <span><i class="swatch" style="background:#23845d"></i>Касательная</span>
+    <span><i class="swatch" style="background:#792d45"></i>Хорда</span>
+    <span><i class="swatch" style="background:#9a7534"></i>Точка перегиба</span>
+  </div>
+
+  <div class="info">
+    <strong>Вторая производная</strong>
+    <div id="derivative"></div>
+    <div id="derivativeAt"></div>
+    <hr>
+    <strong>Уравнение касательной</strong>
+    <div id="tangentEquation"></div>
+    <div id="coordinates"></div>
+  </div>
+
+  <div id="status" class="status"></div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+
+  const W = 760, H = 440;
+  const left = 65, right = 715, top = 25, bottom = 395;
+  const xmin = -2.5, xmax = 2.5;
+  const ymin = -3.2, ymax = 3.2;
+
+  const X = x => left + (x-xmin)/(xmax-xmin)*(right-left);
+  const Y = y => bottom - (y-ymin)/(ymax-ymin)*(bottom-top);
+
+  const f = (x,a) => a*x*x*x;
+  const fp = (x,a) => 3*a*x*x;
+  const fpp = (x,a) => 6*a*x;
+
+  function fmt(n) {
+    if (Math.abs(n)<0.0005) return "0";
+    return Number(n.toFixed(3)).toString().replace(".",",");
+  }
+
+  function drawGrid() {
+    let grid = "", labels = "";
+
+    for (let x=-2; x<=2; x++) {
+      grid += `<line x1="${X(x)}" y1="${top}" x2="${X(x)}"
+        y2="${bottom}" stroke="#e7ebef"/>`;
+      labels += `<text x="${X(x)}" y="${bottom+20}"
+        text-anchor="middle" font-size="12" fill="#687580">${x}</text>`;
+    }
+
+    for (let y=-3; y<=3; y++) {
+      grid += `<line x1="${left}" y1="${Y(y)}" x2="${right}"
+        y2="${Y(y)}" stroke="#e7ebef"/>`;
+      if (y!==0) {
+        labels += `<text x="${left-12}" y="${Y(y)+4}"
+          text-anchor="end" font-size="12" fill="#687580">${y}</text>`;
+      }
+    }
+
+    $("grid").innerHTML = grid;
+
+    $("axes").innerHTML = `
+      <line x1="${left}" y1="${Y(0)}" x2="${right+8}"
+        y2="${Y(0)}" stroke="#343a40" stroke-width="1.6"/>
+      <line x1="${X(0)}" y1="${bottom}" x2="${X(0)}"
+        y2="${top-5}" stroke="#343a40" stroke-width="1.6"/>
+      <path d="M ${right+8} ${Y(0)} l -7 -4 v 8 z" fill="#343a40"/>
+      <path d="M ${X(0)} ${top-5} l -4 7 h 8 z" fill="#343a40"/>
+    `;
+
+    $("labels").innerHTML = labels + `
+      <text x="${right+5}" y="${Y(0)-10}" font-size="14">x</text>
+      <text x="${X(0)+10}" y="${top+8}" font-size="14">y</text>
+      <text x="${X(0)+8}" y="${Y(0)+17}" font-size="12"
+        fill="#9a7534">O</text>
+    `;
+  }
+
+  function makePath(fn, x1, x2, steps=300) {
+    let d = "";
+    for (let i=0; i<=steps; i++) {
+      const x = x1+(x2-x1)*i/steps;
+      const y = fn(x);
+      d += (i===0 ? "M" : "L") + X(x) + "," + Y(y);
+    }
+    return d;
+  }
+
+  function update() {
+    const a = Number($("aSlider").value);
+    const x0 = Number($("xSlider").value);
+
+    const y0 = f(x0,a);
+    const slope = fp(x0,a);
+    const intercept = y0-slope*x0;
+    const second = fpp(x0,a);
+
+    $("aValue").textContent = fmt(a);
+    $("xValue").textContent = fmt(x0);
+
+    // График функции
+    $("curve").setAttribute("d",
+      makePath(x=>f(x,a),xmin,xmax));
+
+    // Касательная
+    $("tangent").setAttribute("d",
+      makePath(x=>slope*x+intercept,xmin,xmax));
+
+    // Хорда через две точки
+    const h=0.85;
+    const x1=x0-h, x2=x0+h;
+    const y1=f(x1,a), y2=f(x2,a);
+    const chordSlope=(y2-y1)/(x2-x1);
+    $("chord").setAttribute("d",
+      makePath(x=>y1+chordSlope*(x-x1),x1,x2,100));
+
+    // Точки
+    $("point").setAttribute("cx",X(x0));
+    $("point").setAttribute("cy",Y(y0));
+    $("leftPoint").setAttribute("cx",X(x1));
+    $("leftPoint").setAttribute("cy",Y(y1));
+    $("rightPoint").setAttribute("cx",X(x2));
+    $("rightPoint").setAttribute("cy",Y(y2));
+
+    // Точка перегиба
+    $("inflectionLine").setAttribute("x1",X(0));
+    $("inflectionLine").setAttribute("x2",X(0));
+    $("inflectionLine").setAttribute("y1",top);
+    $("inflectionLine").setAttribute("y2",bottom);
+
+    $("derivative").textContent=`f″(x) = ${fmt(6*a)}x`;
+    $("derivativeAt").textContent=
+      `f″(${fmt(x0)}) = ${fmt(second)}`;
+
+    $("tangentEquation").textContent=
+      `y = ${fmt(slope)}x ${intercept>=0?"+":"−"} ${fmt(Math.abs(intercept))}`;
+    $("coordinates").textContent=
+      `Точка касания: (${fmt(x0)}; ${fmt(y0)})`;
+
+    const status=$("status");
+    status.className="status";
+
+    if (Math.abs(x0)<0.0001) {
+      status.classList.add("inflection");
+      status.innerHTML=
+        "<strong>Точка перегиба.</strong> f″(0) = 0. " +
+        "Слева функция вогнута, справа выпукла. " +
+        "Касательная пересекает график.";
+    } else if (second>0) {
+      status.innerHTML=
+        "<strong>Выпуклость вверх.</strong> f″(x₀) &gt; 0. " +
+        "В окрестности точки касания график выше касательной " +
+        "и ниже хорды.";
+    } else {
+      status.classList.add("concave");
+      status.innerHTML=
+        "<strong>Вогнутость.</strong> f″(x₀) &lt; 0. " +
+        "В окрестности точки касания график ниже касательной " +
+        "и выше хорды.";
+    }
+  }
+
+  drawGrid();
+  $("aSlider").addEventListener("input",update);
+  $("xSlider").addEventListener("input",update);
+  update();
+})();
+</script>
+</body>
+</html>
+

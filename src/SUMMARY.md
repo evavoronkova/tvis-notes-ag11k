@@ -39,6 +39,11 @@
   - [Нарешка (задача 05)](unit_ege/unit_ege_05_grinding.md)
   - [Нарешка (задача 06)](unit_ege/unit_ege_06_grinding.md)
 
+# Алгебра
+
+- [Выпуклые функции](unit_calculus/convexity.md)
+- [Интерактивная демонстрация выпуклости и вогнутости](unit_calculus/convexity-widget.md)
+
 # Дополнительно
 
 - [Литература](bibliography.md)

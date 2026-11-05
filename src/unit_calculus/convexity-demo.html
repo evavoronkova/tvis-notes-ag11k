@@ -1,0 +1,431 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Выпуклые и вогнутые функции</title>
+
+<style>
+:root {
+    --blue: #174F85;
+    --red: #792D43;
+    --green: #23845D;
+    --gray: #858B91;
+    --axis: #343A40;
+    --bg: #ffffff;
+    --panel: #f3f5f7;
+    --text: #252b32;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+}
+
+.demo {
+    max-width: 850px;
+    margin: auto;
+}
+
+h2 {
+    font-size: 22px;
+    text-align: center;
+    margin: 5px 0 15px;
+}
+
+.formula {
+    text-align: center;
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 22px;
+    margin-bottom: 18px;
+}
+
+.formula small {
+    display: block;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.graph {
+    width: 100%;
+    display: block;
+}
+
+.controls {
+    background: var(--panel);
+    border-radius: 9px;
+    padding: 16px;
+    margin-top: 15px;
+}
+
+.control {
+    margin-bottom: 16px;
+}
+
+.control:last-child {
+    margin-bottom: 0;
+}
+
+.control-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+input[type="range"] {
+    width: 100%;
+    accent-color: var(--blue);
+    cursor: pointer;
+}
+
+.scale {
+    display: flex;
+    justify-content: space-between;
+    color: #777;
+    font-size: 12px;
+}
+
+.result {
+    border-left: 4px solid var(--green);
+    background: var(--panel);
+    border-radius: 5px;
+    padding: 14px;
+    margin-top: 15px;
+    line-height: 1.7;
+}
+
+.result h3 {
+    margin: 0 0 7px;
+    font-size: 17px;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-size: 13px;
+    margin: 12px 0;
+}
+
+.legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.line {
+    display: inline-block;
+    width: 22px;
+    height: 3px;
+}
+
+.blue { background: var(--blue); }
+.green { background: var(--green); }
+.gray { background: var(--gray); }
+
+button {
+    border: 1px solid #bbb;
+    background: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background: #e8edf2;
+}
+
+@media (max-width: 500px) {
+    body { padding: 10px; }
+    h2 { font-size: 19px; }
+    .formula { font-size: 19px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="demo">
+
+<h2>Выпуклые и вогнутые функции</h2>
+
+<div class="formula">
+    f(x) = ax²
+    <small id="formula-second">f''(x) = 0.90</small>
+</div>
+
+<div class="legend">
+    <span><i class="line blue"></i> График функции</span>
+    <span><i class="line gray"></i> Хорда</span>
+    <span><i class="line green"></i> Касательная</span>
+</div>
+
+<svg id="graph"
+     class="graph"
+     viewBox="0 0 720 430"
+     xmlns="http://www.w3.org/2000/svg">
+
+    <defs>
+        <clipPath id="plot-clip">
+            <rect x="110" y="45" width="500" height="340"/>
+        </clipPath>
+    </defs>
+
+    <g id="grid"></g>
+    <g id="axes"></g>
+
+    <g clip-path="url(#plot-clip)">
+        <line id="chord"
+              stroke="#858B91"
+              stroke-width="2.2"
+              stroke-dasharray="7 5"/>
+
+        <line id="tangent"
+              stroke="#23845D"
+              stroke-width="2.5"/>
+
+        <path id="curve"
+              fill="none"
+              stroke="#174F85"
+              stroke-width="3.5"
+              stroke-linecap="round"/>
+
+        <circle id="point"
+                r="5"
+                fill="#23845D"
+                stroke="white"
+                stroke-width="1.5"/>
+
+        <circle id="pointA" r="4" fill="#858B91"/>
+        <circle id="pointB" r="4" fill="#858B91"/>
+    </g>
+
+    <text id="point-label"
+          font-size="14"
+          fill="#23845D">T</text>
+
+    <text x="625" y="222"
+          font-size="16"
+          fill="currentColor">x</text>
+
+    <text x="370" y="28"
+          font-size="16"
+          fill="currentColor">y</text>
+
+</svg>
+
+<div class="controls">
+
+    <div class="control">
+        <div class="control-header">
+            <label for="a">Параметр кривизны a</label>
+            <strong id="a-value">0.45</strong>
+        </div>
+
+        <input type="range"
+               id="a"
+               min="-0.5"
+               max="0.5"
+               step="0.05"
+               value="0.45">
+
+        <div class="scale">
+            <span>−0.5</span>
+            <span>0</span>
+            <span>+0.5</span>
+        </div>
+    </div>
+
+    <div class="control">
+        <div class="control-header">
+            <label for="x0">Точка касания x₀</label>
+            <strong id="x0-value">0.65</strong>
+        </div>
+
+        <input type="range"
+               id="x0"
+               min="-1.5"
+               max="1.5"
+               step="0.1"
+               value="0.65">
+    </div>
+
+</div>
+
+<div class="result" id="result"></div>
+
+<div style="text-align:center; margin-top:15px">
+    <button id="reset">Сбросить параметры</button>
+</div>
+
+</div>
+
+<script>
+(() => {
+
+const NS = "http://www.w3.org/2000/svg";
+
+const aSlider = document.getElementById("a");
+const xSlider = document.getElementById("x0");
+
+const $ = id => document.getElementById(id);
+
+const X = x => 360 + 110*x;
+const Y = y => 215 - 65*y;
+
+function line(x1,y1,x2,y2,color,width) {
+    const el = document.createElementNS(NS,"line");
+    el.setAttribute("x1",x1);
+    el.setAttribute("y1",y1);
+    el.setAttribute("x2",x2);
+    el.setAttribute("y2",y2);
+    el.setAttribute("stroke",color);
+    el.setAttribute("stroke-width",width);
+    return el;
+}
+
+// Координатная сетка
+const grid = $("grid");
+
+for (let i=-2; i<=2; i++) {
+    if (i !== 0) {
+        grid.appendChild(
+            line(X(i),45,X(i),385,"#dfe3e7",1)
+        );
+
+        grid.appendChild(
+            line(110,Y(i),610,Y(i),"#dfe3e7",1)
+        );
+    }
+}
+
+// Координатные оси
+const axes = $("axes");
+
+axes.appendChild(line(110,215,620,215,"#343A40",1.5));
+axes.appendChild(line(360,385,360,40,"#343A40",1.5));
+
+function update() {
+
+    const a = Number(aSlider.value);
+    const x0 = Number(xSlider.value);
+
+    const f = x => a*x*x;
+
+    const df = 2*a*x0;
+
+    // График функции
+    let path = "";
+
+    for (let i=0; i<=150; i++) {
+        const x = -2 + 4*i/150;
+        path += (i===0 ? "M" : "L") +
+            X(x) + " " + Y(f(x)) + " ";
+    }
+
+    $("curve").setAttribute("d",path);
+
+    // Хорда между x=-1.6 и x=1.6
+    const xa = -1.6;
+    const xb = 1.6;
+
+    $("chord").setAttribute("x1",X(xa));
+    $("chord").setAttribute("y1",Y(f(xa)));
+    $("chord").setAttribute("x2",X(xb));
+    $("chord").setAttribute("y2",Y(f(xb)));
+
+    $("pointA").setAttribute("cx",X(xa));
+    $("pointA").setAttribute("cy",Y(f(xa)));
+
+    $("pointB").setAttribute("cx",X(xb));
+    $("pointB").setAttribute("cy",Y(f(xb)));
+
+    // Касательная
+    const tangent = x => f(x0)+df*(x-x0);
+
+    $("tangent").setAttribute("x1",X(-2));
+    $("tangent").setAttribute("y1",Y(tangent(-2)));
+    $("tangent").setAttribute("x2",X(2));
+    $("tangent").setAttribute("y2",Y(tangent(2)));
+
+    // Точка касания
+    $("point").setAttribute("cx",X(x0));
+    $("point").setAttribute("cy",Y(f(x0)));
+
+    $("point-label").setAttribute("x",X(x0)+10);
+    $("point-label").setAttribute("y",Y(f(x0))-12);
+
+    // Формулы
+    $("a-value").textContent = a.toFixed(2);
+    $("x0-value").textContent = x0.toFixed(2);
+
+    $("formula-second").textContent =
+        "f''(x) = " + (2*a).toFixed(2);
+
+    // Классификация функции
+    let title, description, color;
+
+    if (a > 0) {
+        title = "Выпуклая функция";
+        description =
+            "График расположен ниже хорды и выше касательной.";
+        color = "#23845D";
+    } else if (a < 0) {
+        title = "Вогнутая функция";
+        description =
+            "График расположен выше хорды и ниже касательной.";
+        color = "#B36A37";
+    } else {
+        title = "Линейная функция";
+        description =
+            "График совпадает с хордой и касательной.";
+        color = "#858B91";
+    }
+
+    $("result").style.borderLeftColor = color;
+
+    $("result").innerHTML = `
+        <h3 style="color:${color}">${title}</h3>
+        <div>${description}</div>
+        <div>Вторая производная:
+        <strong>f''(x) = ${(2*a).toFixed(2)}</strong></div>
+        <div>Уравнение касательной:
+        <strong>y = ${(df).toFixed(3)}x
+        ${(-a*x0*x0 >= 0 ? "+" : "−")}
+        ${Math.abs(a*x0*x0).toFixed(3)}</strong></div>
+        <div>Точка касания:
+        T(${x0.toFixed(2)}; ${f(x0).toFixed(3)})</div>
+    `;
+}
+
+aSlider.addEventListener("input",update);
+xSlider.addEventListener("input",update);
+
+$("reset").addEventListener("click",() => {
+    aSlider.value = 0.45;
+    xSlider.value = 0.65;
+    update();
+});
+
+update();
+
+})();
+</script>
+
+</body>
+</html>

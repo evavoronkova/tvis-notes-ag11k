@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Выпуклость кубического полинома</title>
+<style>
+:root {
+  --blue:#174f85;
+  --red:#792d45;
+  --green:#23845d;
+  --gold:#9a7534;
+  --axis:#343a40;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; padding:20px;
+  font-family:Arial,sans-serif;
+  color:#27313a; background:#f7f9fb;
+}
+.container {
+  max-width:950px; margin:auto; padding:22px;
+  background:white; border:1px solid #dce2e8;
+  border-radius:12px;
+}
+h2 { margin:0 0 8px; font-size:21px; }
+.subtitle { color:#687580; font-size:14px; margin-bottom:18px; }
+.controls {
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:12px; margin-bottom:16px;
+}
+.control {
+  padding:11px 13px; background:#f5f7f9; border-radius:8px;
+}
+.control label {
+  display:flex; justify-content:space-between;
+  font-size:14px; margin-bottom:8px;
+}
+.control strong { color:var(--blue); font-variant-numeric:tabular-nums; }
+input { width:100%; accent-color:var(--blue); }
+.graph-wrap { overflow:hidden; }
+svg { display:block; width:100%; height:auto; background:white; }
+.info {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:12px; margin-top:14px;
+}
+.card {
+  padding:13px 15px; border-radius:8px;
+  background:#f5f7f9; font-size:14px; line-height:1.6;
+  overflow-wrap:anywhere;
+}
+.card strong { display:block; margin-bottom:5px; }
+.formula { font-family:Georgia,serif; font-size:17px; }
+.status {
+  margin-top:12px; padding:14px 16px;
+  border-left:4px solid var(--green);
+  background:#eef6f1; border-radius:5px;
+  font-size:14px; line-height:1.55;
+}
+.status.concave { border-color:var(--red); background:#f8eff2; }
+.status.inflection { border-color:var(--gold); background:#fbf6e9; }
+.legend {
+  display:flex; flex-wrap:wrap; gap:16px;
+  margin-top:12px; font-size:13px; color:#687580;
+}
+.legend span { display:inline-flex; align-items:center; gap:7px; }
+.swatch { width:23px; height:3px; display:inline-block; }
+@media(max-width:600px) {
+  body { padding:8px; }
+  .container { padding:12px; }
+  .controls,.info { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Выпуклость и вогнутость кубического полинома</h2>
+  <div class="subtitle">
+    Исследование функции f(x) = ax³ + bx² + cx + d
+  </div>
+
+  <div class="controls">
+    <div class="control">
+      <label><span>Коэффициент a</span><strong id="av">0.20</strong></label>
+      <input id="a" type="range" min="-0.5" max="0.5" step="0.05" value="0.2">
+    </div>
+    <div class="control">
+      <label><span>Коэффициент b</span><strong id="bv">0.00</strong></label>
+      <input id="b" type="range" min="-1" max="1" step="0.05" value="0">
+    </div>
+    <div class="control">
+      <label><span>Коэффициент c</span><strong id="cv">0.00</strong></label>
+      <input id="c" type="range" min="-2" max="2" step="0.1" value="0">
+    </div>
+    <div class="control">
+      <label><span>Коэффициент d</span><strong id="dv">0.00</strong></label>
+      <input id="d" type="range" min="-2" max="2" step="0.1" value="0">
+    </div>
+    <div class="control" style="grid-column:1/-1">
+      <label><span>Точка касания x₀</span><strong id="xv">1.00</strong></label>
+      <input id="x0" type="range" min="-3" max="3" step="0.05" value="1">
+    </div>
+  </div>
+
+  <div class="graph-wrap">
+    <svg id="graph" viewBox="0 0 760 440">
+      <defs>
+        <clipPath id="clip">
+          <rect x="65" y="25" width="650" height="370"/>
+        </clipPath>
+      </defs>
+      <g id="grid"></g>
+      <g id="axes"></g>
+      <g clip-path="url(#clip)">
+        <path id="curve" fill="none" stroke="#174f85" stroke-width="3.2"/>
+        <path id="tangent" fill="none" stroke="#23845d" stroke-width="2.4"/>
+        <path id="chord" fill="none" stroke="#792d45"
+              stroke-width="2.2" stroke-dasharray="8 5"/>
+        <line id="inflectionLine" stroke="#9a7534"
+              stroke-width="1.5" stroke-dasharray="5 5"/>
+        <circle id="point" r="5.5" fill="#23845d" stroke="white" stroke-width="2"/>
+        <circle id="p1" r="4" fill="#792d45"/>
+        <circle id="p2" r="4" fill="#792d45"/>
+        <circle id="inflectionPoint" r="5" fill="#9a7534"
+                stroke="white" stroke-width="1.5"/>
+      </g>
+      <g id="labels"></g>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <span><i class="swatch" style="background:#174f85"></i>График</span>
+    <span><i class="swatch" style="background:#23845d"></i>Касательная</span>
+    <span><i class="swatch" style="background:#792d45"></i>Хорда</span>
+    <span><i class="swatch" style="background:#9a7534"></i>Точка перегиба</span>
+  </div>
+
+  <div class="info">
+    <div class="card">
+      <strong>Вторая производная</strong>
+      <div class="formula" id="secondFormula"></div>
+      <div id="secondAt"></div>
+      <div id="inflectionX"></div>
+    </div>
+    <div class="card">
+      <strong>Касательная в точке x₀</strong>
+      <div class="formula" id="tangentEq"></div>
+      <div id="pointCoords"></div>
+    </div>
+  </div>
+
+  <div id="status" class="status"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const L=65, R=715, T=25, B=395;
+const xmin=-3.5, xmax=3.5, ymin=-8, ymax=8;
+
+const X=x=>L+(x-xmin)/(xmax-xmin)*(R-L);
+const Y=y=>B-(y-ymin)/(ymax-ymin)*(B-T);
+
+const f=(x,a,b,c,d)=>a*x*x*x+b*x*x+c*x+d;
+const fp=(x,a,b,c)=>3*a*x*x+2*b*x+c;
+const fpp=(x,a,b)=>6*a*x+2*b;
+
+function fmt(n) {
+  if (Math.abs(n)<0.0005) return "0";
+  return Number(n.toFixed(3)).toString().replace(".",",");
+}
+function path(fn,x1,x2,steps=400) {
+  let s="";
+  for(let i=0;i<=steps;i++){
+    const x=x1+(x2-x1)*i/steps;
+    const y=fn(x);
+    s+=(i===0?"M":"L")+X(x)+","+Y(y);
+  }
+  return s;
+}
+function drawGrid() {
+  let g="", labels="";
+  for(let x=-3;x<=3;x++){
+    g+=`<line x1="${X(x)}" y1="${T}" x2="${X(x)}" y2="${B}" stroke="#e7ebef"/>`;
+    labels+=`<text x="${X(x)}" y="${B+20}" text-anchor="middle" font-size="12" fill="#687580">${x}</text>`;
+  }
+  for(let y=-8;y<=8;y+=2){
+    g+=`<line x1="${L}" y1="${Y(y)}" x2="${R}" y2="${Y(y)}" stroke="#e7ebef"/>`;
+    if(y!==0) labels+=`<text x="${L-10}" y="${Y(y)+4}" text-anchor="end" font-size="12" fill="#687580">${y}</text>`;
+  }
+  $("grid").innerHTML=g;
+  $("axes").innerHTML=`
+    <line x1="${L}" y1="${Y(0)}" x2="${R+8}" y2="${Y(0)}" stroke="#343a40" stroke-width="1.6"/>
+    <line x1="${X(0)}" y1="${B}" x2="${X(0)}" y2="${T-5}" stroke="#343a40" stroke-width="1.6"/>
+    <path d="M ${R+8} ${Y(0)} l -7 -4 v 8 z" fill="#343a40"/>
+    <path d="M ${X(0)} ${T-5} l -4 7 h 8 z" fill="#343a40"/>`;
+  $("labels").innerHTML=labels+
+    `<text x="${R+5}" y="${Y(0)-10}" font-size="14">x</text>
+     <text x="${X(0)+10}" y="${T+8}" font-size="14">y</text>`;
+}
+
+function signed(n, variable="") {
+  if(Math.abs(n)<0.0005) return "";
+  return (n>=0?" + ":" − ")+fmt(Math.abs(n))+variable;
+}
+
+function update() {
+  const a=+$("a").value, b=+$("b").value;
+  const c=+$("c").value, d=+$("d").value;
+  const x0=+$("x0").value;
+
+  $("av").textContent=fmt(a);
+  $("bv").textContent=fmt(b);
+  $("cv").textContent=fmt(c);
+  $("dv").textContent=fmt(d);
+  $("xv").textContent=fmt(x0);
+
+  const y0=f(x0,a,b,c,d);
+  const slope=fp(x0,a,b,c);
+  const intercept=y0-slope*x0;
+  const second=fpp(x0,a,b);
+
+  $("curve").setAttribute("d",path(x=>f(x,a,b,c,d),xmin,xmax));
+  $("tangent").setAttribute("d",path(x=>slope*x+intercept,xmin,xmax));
+
+  const h=0.9, x1=x0-h, x2=x0+h;
+  const y1=f(x1,a,b,c,d), y2=f(x2,a,b,c,d);
+  const chordSlope=(y2-y1)/(x2-x1);
+  $("chord").setAttribute("d",path(
+    x=>y1+chordSlope*(x-x1),x1,x2,100));
+
+  $("point").setAttribute("cx",X(x0));
+  $("point").setAttribute("cy",Y(y0));
+  $("p1").setAttribute("cx",X(x1));
+  $("p1").setAttribute("cy",Y(y1));
+  $("p2").setAttribute("cx",X(x2));
+  $("p2").setAttribute("cy",Y(y2));
+
+  let xi=null;
+  if(Math.abs(a)>1e-8) xi=-b/(3*a);
+
+  if(xi!==null && xi>=xmin && xi<=xmax){
+    $("inflectionLine").setAttribute("x1",X(xi));
+    $("inflectionLine").setAttribute("x2",X(xi));
+    $("inflectionLine").setAttribute("y1",T);
+    $("inflectionLine").setAttribute("y2",B);
+    $("inflectionPoint").setAttribute("cx",X(xi));
+    $("inflectionPoint").setAttribute("cy",Y(f(xi,a,b,c,d)));
+    $("inflectionPoint").style.display="";
+  } else {
+    $("inflectionLine").setAttribute("x1",-100);
+    $("inflectionLine").setAttribute("x2",-100);
+    $("inflectionPoint").style.display="none";
+  }
+
+  $("secondFormula").textContent=
+    `f″(x) = ${fmt(6*a)}x${signed(2*b)}`;
+  $("secondAt").textContent=`f″(${fmt(x0)}) = ${fmt(second)}`;
+  $("inflectionX").textContent=xi===null
+    ? "Точка перегиба не определяется как единственная."
+    : `x перегиба = ${fmt(xi)}`;
+
+  $("tangentEq").textContent=
+    `y = ${fmt(slope)}x${signed(intercept)}`;
+  $("pointCoords").textContent=
+    `Точка касания: (${fmt(x0)}; ${fmt(y0)})`;
+
+  const status=$("status");
+  status.className="status";
+
+  if(Math.abs(second)<1e-7 && xi!==null && Math.abs(x0-xi)<1e-6){
+    status.classList.add("inflection");
+    status.innerHTML="<strong>Точка перегиба.</strong> Вторая производная равна нулю, а при переходе через эту точку меняет знак. Касательная пересекает график.";
+  } else if(Math.abs(a)<1e-8 && Math.abs(b)<1e-8){
+    status.innerHTML="<strong>Линейная или постоянная функция.</strong> Вторая производная тождественно равна нулю. Выпуклость и вогнутость одновременно нестрогие.";
+  } else if(second>0){
+    status.innerHTML="<strong>Выпуклость вверх.</strong> f″(x₀) &gt; 0. В окрестности точки касания график расположен выше касательной и ниже хорды.";
+  } else {
+    status.classList.add("concave");
+    status.innerHTML="<strong>Вогнутость.</strong> f″(x₀) &lt; 0. В окрестности точки касания график расположен ниже касательной и выше хорды.";
+  }
+}
+
+drawGrid();
+["a","b","c","d","x0"].forEach(id=>$(id).addEventListener("input",update));
+update();
+</script>
+</body>
+</html>
