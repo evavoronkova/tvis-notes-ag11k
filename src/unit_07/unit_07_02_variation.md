@@ -33,6 +33,10 @@ $$X \sim \begin{pmatrix} 1 & 2 & 5 \\ 0.3 & 0.5 & 0.2 \end{pmatrix}.$$
 </details> 
 </div>
 
+
+Если случайная величина имеет дисперсию, то она имеет и математическое ожидание. Но бесконечная случайная величина может не иметь дисперсии, даже если у неё существует математическое ожидание.
+
+
 ## Формула для вычисления дисперсии
 
 Дисперсию часто удобнее считать, используя эквивалентную формулу.
@@ -47,8 +51,10 @@ $$DX=E(X^2)−(EX)^2.$$
 </div>   
 
 <div class="math-block proof" id="variation-formula-proof">
+<details>
+<summary><span class="math-block-title" style="display:inline-block; cursor:pointer;">Доказательство теоремы</span></summary>
 
-<div class="math-block-title">Доказательство</div>
+
 
 
 - Распишем по определению выражение для дисперсии:
@@ -58,6 +64,7 @@ $$DX=E(X^2)−(EX)^2.$$
 - c учетом [линейности мат. ожидания](../unit_06/unit_06_03_properties.md) и, учитывая, что $EX$ ---  это некоторое постоянное число, получим
  $$ = E(X^2) - 2\cdot EX\cdot EX + (EX)^2 = E(X^2) - (EX)^2.$$  
 
+</details>
 </div>
 
 
@@ -76,7 +83,8 @@ $$DX=E(X^2)−(EX)^2.$$
 $$X \sim \begin{pmatrix} 1 & 2 & 5 \\ 0.3 & 0.5 & 0.2 \end{pmatrix}.$$
 
 <details>
-<summary>Посмотреть решение</summary>
+<summary><span class="math-block-title" style="display:inline-block; cursor:pointer;">Посмотреть решение</span></summary>
+
 
 - Математическое ожидание величины $X$ уже найдено и равно $EX =  2.3$;
 - Вычислим мат. ожидание $X^2$:  $E(X^2) = 1\cdot 0.3 + 4\cdot 0.5 +25\cdot 0.2 = 7.3$;
