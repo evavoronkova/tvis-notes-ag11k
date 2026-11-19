@@ -30,6 +30,7 @@
   - [Физический смысл дисперсии](unit_07/unit_07_03_physical_meaning.md)
   - [Свойства дисперсии](unit_07/unit_07_04_properties.md)
   - [Дисперсия бинарной случайной величины](unit_07/unit_07_05_binary.md)
+  - [Дисперсия биномиального и геометрического распределений](unit_07/unit_07_06_distributions.md)
   - [Задачи](unit_07/unit_07_problems.md) 
 - [Вероятность на ЕГЭ](unit_ege/unit_ege_00.md)
   - [Задача 4](unit_ege/unit_ege_04.md)
@@ -43,6 +44,9 @@
 
 - [Выпуклые функции](unit_calculus/convexity.md)
 - [Интерактивная демонстрация выпуклости и вогнутости](unit_calculus/convexity-widget.md)
+
+# Математический адвент 2027
+- [День 1](unit_advent/unit_advent_01.md)
 
 # Дополнительно
 
