@@ -14,7 +14,7 @@
 
 <figure class="figure figure--small" id="fig-variation-2">
 
-![Диаграмма биномиального распределения](../img/day_01.png)
+![Диаграмма биномиального распределения](../img/advent_day_01.png)
 
 <figcaption>
 Схема тропинок
