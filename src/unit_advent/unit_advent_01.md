@@ -1,7 +1,4 @@
 
-
-
-
 <details>
 <summary><span class="math-block-title" style="display:inline-block; cursor:pointer;">День первый. Разминка</span></summary>
 
@@ -30,4 +27,3 @@
 
 
 </details> -->
-
