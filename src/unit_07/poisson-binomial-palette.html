@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Приближение Пуассона</title>
+
+    <!-- CSS: оформление и адаптивность -->
+    <style>
+        :root {
+            color-scheme: light dark;
+            /* Палитра учебника */
+            --zone1color: rgb(23, 79, 133);
+            --zone2color: rgb(38, 166, 115);
+            --zone3color: rgb(214, 54, 86);
+            --tailscolor: rgb(165, 172, 180);
+            --fg: #202124;
+            --muted: #666;
+            --line: #dedede;
+            --soft: #f5f5f5;
+            --bg: #fff;
+        }
+
+        @media (prefers-color-scheme:dark) {
+            :root {
+                --fg: #eee;
+                --muted: #aaa;
+                --line: #414141;
+                --soft: #292929;
+                --bg: #212121;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 8px;
+            font: 15px/1.45 system-ui,sans-serif;
+            color: var(--fg);
+            background: transparent;
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+            background: var(--bg);
+        }
+
+        h2 {
+            font-size: 20px;
+            line-height: 1.35;
+            margin: 0 0 18px;
+            font-weight: 650;
+        }
+
+        .segments {
+            display: flex;
+            background: var(--soft);
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+
+        .segments button {
+            flex: 1;
+            border: 0;
+            background: transparent;
+        }
+
+        .segments button[aria-pressed=true] {
+            background: var(--bg);
+            box-shadow: 0 1px 4px #0002;
+        }
+
+        button {
+            font: inherit;
+            color: inherit;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 8px 12px;
+            background: var(--bg);
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--soft);
+        }
+
+        button.active {
+            background: var(--zone3color);
+            color: #fff;
+        }
+
+        label {
+            display: block;
+            margin: 14px 0;
+        }
+
+        .labelrow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        output {
+            font-size: 19px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--zone1color);
+            margin: 12px 0 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .caption,small {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .value {
+            font-size: 25px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            overflow-wrap: anywhere;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 15px;
+        }
+
+        .swatch {
+            display: inline-block;
+            width: 11px;
+            height: 11px;
+            border-radius: 2px;
+            margin-right: 6px;
+        }
+
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .variance {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .variance .value {
+            font-size: 20px;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid var(--line);
+            margin: 16px 0;
+        }
+
+        .presets {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+        }
+
+        .reset {
+            width: 100%;
+            margin-top: 6px;
+        }
+
+        [hidden] {
+            display: none;
+        }
+
+        @media (max-width:480px) {
+            .card {
+                padding: 12px;
+            }
+            .value {
+                font-size: 19px;
+            }
+            .segments button {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HTML: структура демонстрации -->
+    <main class="card">
+     <h2>
+      От биномиального распределения к распределению Пуассона
+     </h2>
+     <!-- Режимы эксперимента -->
+     <div class="segments">
+      <button aria-pressed="true" data-mode="fixed">
+       Фиксированное λ
+      </button>
+      <button aria-pressed="false" data-mode="free">
+       Свободные n и p
+      </button>
+     </div>
+     <!-- Управление параметрами -->
+     <label>
+      <span class="labelrow">
+       Число испытаний n
+       <output id="nv">
+       </output>
+      </span>
+      <input id="n" max="3000" min="1" type="range" value="10"/>
+     </label>
+     <label id="lwrap">
+      <span class="labelrow">
+       Среднее λ
+       <output id="lv">
+       </output>
+      </span>
+      <input id="l" max="20" min="0.1" step="0.1" type="range" value="3"/>
+     </label>
+     <label hidden="" id="pwrap">
+      <span class="labelrow">
+       Вероятность успеха p
+       <output id="pv">
+       </output>
+      </span>
+      <input id="p" max="1" min="0" step="0.001" type="range" value="0.3"/>
+     </label>
+     <!-- Текущие значения параметров -->
+     <div class="stats">
+      <div>
+       <div class="caption">
+        Испытания n
+       </div>
+       <div class="value" id="statn">
+       </div>
+      </div>
+      <div>
+       <div class="caption">
+        Вероятность p
+       </div>
+       <div class="value" id="statp">
+       </div>
+      </div>
+      <div>
+       <div class="caption">
+        Среднее λ = np
+       </div>
+       <div class="value" id="statl">
+       </div>
+      </div>
+     </div>
+     <hr/>
+     <!-- Легенда и график -->
+     <div class="legend">
+      <span>
+       <i class="swatch" style="background:var(--zone1color)">
+       </i>
+       Биномиальное
+      </span>
+      <span>
+       <i class="swatch" style="background:var(--zone2color)">
+       </i>
+       Пуассона
+      </span>
+     </div>
+     <svg aria-label="Сравнение вероятностей двух распределений" id="plot" role="img" viewbox="0 0 760 340">
+     </svg>
+     <!-- Сравнение дисперсий -->
+     <div class="variance">
+      <div>
+       <div class="caption">
+        Дисперсия Bin(n, p)
+       </div>
+       <div class="value" id="varb">
+       </div>
+      </div>
+      <div>
+       <div class="caption">
+        Дисперсия Pois(λ)
+       </div>
+       <div class="value" id="varq">
+       </div>
+      </div>
+     </div>
+     <hr/>
+     <!-- Готовые эксперименты и сброс -->
+     <strong>
+      Эксперименты при λ = 3
+     </strong>
+     <div class="presets">
+      <button data-n="5">
+       n = 5
+      </button>
+      <button data-n="10">
+       n = 10
+      </button>
+      <button data-n="30">
+       n = 30
+      </button>
+      <button data-n="100">
+       n = 100
+      </button>
+      <button data-n="300">
+       n = 300
+      </button>
+      <button data-n="1000">
+       n = 1000
+      </button>
+      <button data-n="3000">
+       n = 3000
+      </button>
+     </div>
+     <button class="reset" id="reset">
+      ↻ Сбросить параметры
+     </button>
+    </main>
+
+    <!-- JavaScript: вычисления и интерактивность -->
+    <script>
+        // 1. Элементы интерфейса и состояние
+        const $ = id => document.getElementById(id), n = $('n'), p = $('p'), l = $('l'), mode = { value: 'fixed' };
+        // 2. Вычисление вероятностей
+        function probs(N, P, L) {
+            let M = Math.max(N, Math.ceil(L + 14 * Math.sqrt(L + 1) + 30)), b = new Float64Array(M + 1), q = new Float64Array(M + 1); // stable recurrence from modes, then normalize
+            let m = Math.min(N, Math.floor((N + 1) * P));
+            b[m] = 1;
+            if (P > 0 && P < 1) {
+                for (let k = m; k > 0; k--)
+                    b[k - 1] = b[k] * k / (N - k + 1) * (1 - P) / P;
+                for (let k = m; k < N; k++)
+                    b[k + 1] = b[k] * (N - k) / (k + 1) * P / (1 - P);
+            }
+            let r = Math.floor(L);
+            q[r] = 1;
+            if (L > 0) {
+                for (let k = r; k > 0; k--)
+                    q[k - 1] = q[k] * k / L;
+                for (let k = r; k < M; k++)
+                    q[k + 1] = q[k] * L / (k + 1);
+            }
+            let sb = b.reduce((a, x) => a + x, 0), sq = q.reduce((a, x) => a + x, 0);
+            for (let k = 0; k <= M; k++) {
+                b[k] /= sb;
+                q[k] /= sq;
+            }
+            return [b, q];
+        }
+        // 3. Обновление параметров, показателей и SVG-графика
+        function draw() { let fixed = mode.value === 'fixed', N = +n.value, L, P; n.min = fixed ? Math.max(1, Math.ceil(+l.value)) : 1; if (fixed) {
+            N = Math.max(N, +n.min);
+            n.value = N;
+            L = +l.value;
+            P = L / N;
+        }
+        else {
+            P = +p.value;
+            L = N * P;
+        } $('pwrap').hidden = fixed; $('lwrap').hidden = !fixed; document.querySelectorAll('[data-mode]').forEach(e => { e.setAttribute('aria-pressed', String(e.dataset.mode === mode.value)); }); $('statn').textContent = N; $('statp').textContent = P.toFixed(5); $('statl').textContent = L.toFixed(2); $('nv').value = N; $('pv').value = P.toFixed(5); $('lv').value = L.toFixed(3); let [b, q] = probs(N, P, L); $('varb').textContent = (L * (1 - P)).toFixed(3); $('varq').textContent = L.toFixed(3); document.querySelectorAll('[data-n]').forEach(e => e.classList.toggle('active', fixed && L === 3 && N === +e.dataset.n)); let lo = Math.max(0, Math.floor(L - 5 * Math.sqrt(L + 1))), hi = Math.min(q.length - 1, Math.max(12, Math.ceil(L + 5 * Math.sqrt(L + 1)))), peak = 0; for (let k = lo; k <= hi; k++)
+            peak = Math.max(peak, b[k], q[k]); let top = peak * 1.12, W = 680, H = 250, x0 = 60, y0 = 280, dx = W / (hi - lo + 1), s = ''; for (let i = 0; i <= 4; i++) {
+            let y = y0 - H * i / 4;
+            s += `<path d="M${x0} ${y}H740" stroke="var(--tailscolor)" opacity=".45"/><text x="52" y="${y + 4}" text-anchor="end" fill="currentColor" font-size="11">${(top * i / 4).toFixed(3)}</text>`;
+        } for (let k = lo; k <= hi; k++) {
+            let x = x0 + (k - lo) * dx;
+            for (let [v, c, off, name] of [[b[k], 'var(--zone1color)', .1, 'Bin'], [q[k], 'var(--zone2color)', .5, 'Pois']]) {
+                let h = v / top * H;
+                s += `<rect x="${x + dx * off}" y="${y0 - h}" width="${dx * .38}" height="${h}" fill="${c}"><title>${name}: P(X=${k}) = ${v.toPrecision(5)}</title></rect>`;
+            }
+            if ((k - lo) % Math.max(1, Math.ceil((hi - lo) / 25)) === 0)
+                s += `<text x="${x + dx / 2}" y="298" text-anchor="middle" fill="currentColor" font-size="11">${k}</text>`;
+        } s += `<path d="M60 30V280H740" fill="none" stroke="currentColor"/><text x="60" y="18" fill="currentColor" font-size="12">P(X = k)</text><text x="400" y="325" text-anchor="middle" fill="currentColor" font-size="12">k — число успехов</text>`; $('plot').innerHTML = s; }
+        // 4. Обработчики событий и начальная отрисовка
+        [n, p, l].forEach(e => e.addEventListener('input', draw));
+        document.querySelectorAll('button[data-n]').forEach(e => e.onclick = () => { mode.value = 'fixed'; l.value = 3; n.min = 1; n.value = e.dataset.n; draw(); });
+        document.querySelectorAll('[data-mode]').forEach(e => e.onclick = () => { mode.value = e.dataset.mode; draw(); });
+        $('reset').onclick = () => { mode.value = 'fixed'; n.min = 1; n.value = 10; l.value = 3; p.value = .3; draw(); };
+        draw();
+    </script>
+</body>
+</html>
