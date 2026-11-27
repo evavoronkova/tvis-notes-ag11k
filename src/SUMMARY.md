@@ -32,6 +32,7 @@
   - [Дисперсия бинарной случайной величины](unit_07/unit_07_05_binary.md)
   - [Дисперсия биномиального и геометрического распределений](unit_07/unit_07_06_distributions.md)
   - [Распределение Пуассона](unit_07/unit_07_07_poisson.md)
+  - [Простейший поток событий](unit_07/unit_07_08_poisson_process.md)
   - [Задачи](unit_07/unit_07_problems.md) 
 - [Вероятность на ЕГЭ](unit_ege/unit_ege_00.md)
   - [Задача 4](unit_ege/unit_ege_04.md)
@@ -49,6 +50,7 @@
 # Математический адвент 2027
 - [День 1](unit_advent/unit_advent_01.md)
 - [День 2](unit_advent/unit_advent_02.md)
+- [День 3](unit_advent/unit_advent_03.md)
 # Дополнительно
 
 - [Литература](bibliography.md)

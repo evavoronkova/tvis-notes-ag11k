@@ -96,6 +96,8 @@ $$ =  \cfrac{\lambda^k}{k!} \lim\limits_{n\to \infty}   \left(1-  \cfrac{\lambda
 
 $$ P(X = k) = \lambda^k \cfrac{e^{-k}}{k!}. $$
 
+$EX = \lambda, \; DX = \lambda$.
+
 </div>
 
 <div class="math-block example">

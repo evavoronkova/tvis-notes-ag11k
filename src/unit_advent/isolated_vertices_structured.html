@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Изолированные вершины</title>
+  <style>
+    /* 1. Цветовая палитра */
+    :root {
+      --sapphire: #174f85;
+      --emerald: #26a673;
+      --cherry: #d63656;
+      --gray: #a5acb4;
+    }
+    /* 2. Основные стили и элементы управления */
+    body { font: 16px system-ui; margin: 12px; color: var(--sapphire); background: white; }
+    button, input { accent-color: var(--sapphire); }
+    button { padding: 7px; margin: 3px; border: 1px solid var(--gray); border-radius: 6px; background: white; color: var(--sapphire); cursor: pointer; }
+    label { display: block; margin: 10px 0; }
+    input[type="range"] { max-width: 100%; }
+    /* 3. Визуализация и результаты */
+    svg { width: 100%; height: auto; display: block; }
+    .stats { display: flex; gap: 20px; flex-wrap: wrap; }
+    small { color: #555; }
+  </style>
+</head>
+<body>
+  <main>
+    <h2>Волшебные порталы: G(n,p)</h2>
+    <!-- 1. Управление параметрами -->
+    <section aria-label="Параметры графа">
+      <label>Число городов: <output id="nv" for="n"></output>
+        <input id="n" type="range" min="2" max="100" value="20">
+      </label>
+      <label>Вероятность ребра: <output id="pv" for="p"></output>
+        <input id="p" type="range" min="0" max="1" step="0.00001" value="0.1">
+      </label>
+      <button id="fresh" type="button">Новый граф</button>
+      <button id="crit" type="button">E[X] = 1</button>
+      <button id="mc" type="button">1000 экспериментов</button>
+    </section>
+    <!-- 2. Случайный граф и статистика -->
+    <section aria-label="Реализация случайного графа">
+      <div class="stats">
+        <p>Изолировано: <b id="x"></b></p>
+        <p>Ожидание: <b id="ex"></b></p>
+      </div>
+      <svg id="g" viewBox="0 0 600 350" role="img" aria-label="Случайный граф"></svg>
+      <small>Малиновые вершины — изолированные.</small>
+      <p id="result" aria-live="polite"></p>
+    </section>
+    <!-- 3. Теоретическая зависимость -->
+    <section aria-label="Математическое ожидание">
+      <svg id="plot" viewBox="0 0 600 220" role="img" aria-label="График математического ожидания"></svg>
+    </section>
+  </main>
+  <script>
+    'use strict';
+
+    // 1. Настройки и состояние приложения
+    const EXPERIMENT_COUNT = 1000;
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const COLORS = {
+      normal: 'var(--sapphire)',
+      isolated: 'var(--cherry)',
+      edge: 'var(--gray)',
+      reference: 'var(--emerald)'
+    };
+    const byId = id => document.getElementById(id);
+    const ui = Object.fromEntries(
+      ['n', 'p', 'nv', 'pv', 'fresh', 'crit', 'mc', 'x', 'ex', 'g', 'plot', 'result']
+        .map(id => [id, byId(id)])
+    );
+    let randomValues = [];
+
+    function getParameters() {
+      return { n: Number(ui.n.value), p: Number(ui.p.value) };
+    }
+
+    // 2. Математическая модель
+    function expectedIsolated(n, p) {
+      return n * Math.pow(1 - p, n - 1);
+    }
+
+    function criticalProbability(n) {
+      // expm1 обеспечивает точность при малых p.
+      return -Math.expm1(-Math.log(n) / (n - 1));
+    }
+
+    // 3. Генерация графа G(n,p)
+    function generateRandomValues(n) {
+      return Array.from({ length: n * (n - 1) / 2 }, () => Math.random());
+    }
+
+    function generateGraph(n, p, values = null, collectEdges = true) {
+      const degrees = Array(n).fill(0);
+      const edges = [];
+      let k = 0;
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+          const u = values === null ? Math.random() : values[k];
+          k++;
+          if (u < p) {
+            degrees[i]++;
+            degrees[j]++;
+            if (collectEdges) edges.push([i, j]);
+          }
+        }
+      }
+      return { edges, degrees, isolated: degrees.filter(d => d === 0).length };
+    }
+
+    // 4. Вспомогательные функции SVG
+    function appendSvg(root, tag, attributes, content) {
+      const element = document.createElementNS(SVG_NS, tag);
+      for (const [key, value] of Object.entries(attributes)) {
+        element.setAttribute(key, value);
+      }
+      if (content !== undefined) element.textContent = content;
+      root.append(element);
+      return element;
+    }
+
+    function circularLayout(n) {
+      return Array.from({ length: n }, (_, i) => {
+        const angle = 2 * Math.PI * i / n;
+        return [300 + 145 * Math.cos(angle), 175 + 145 * Math.sin(angle)];
+      });
+    }
+
+    // 5. Визуализация случайного графа
+    function drawGraph(n, graph) {
+      const root = ui.g;
+      root.replaceChildren();
+      const positions = circularLayout(n);
+      for (const [i, j] of graph.edges) {
+        appendSvg(root, 'line', {
+          x1: positions[i][0], y1: positions[i][1],
+          x2: positions[j][0], y2: positions[j][1],
+          stroke: COLORS.edge, 'stroke-opacity': 0.5
+        });
+      }
+      positions.forEach(([cx, cy], i) => {
+        appendSvg(root, 'circle', {
+          cx, cy, r: n > 40 ? 4 : 9,
+          fill: graph.degrees[i] === 0 ? COLORS.isolated : COLORS.normal
+        });
+        if (n <= 30) {
+          appendSvg(root, 'text', {
+            x: cx, y: cy + 3, 'text-anchor': 'middle', fill: 'white', 'font-size': 8
+          }, i + 1);
+        }
+      });
+    }
+
+    // 6. График математического ожидания
+    function drawExpectation(n, p) {
+      const root = ui.plot;
+      root.replaceChildren();
+      const X = value => 45 + 530 * value;
+      const Y = value => 180 - 155 * value / n;
+      appendSvg(root, 'path', { d: 'M45 15 V180 H575', fill: 'none', stroke: COLORS.edge });
+      const points = Array.from({ length: 501 }, (_, i) => {
+        const probability = i / 500;
+        return `${X(probability)},${Y(expectedIsolated(n, probability))}`;
+      }).join(' ');
+      appendSvg(root, 'polyline', { points, fill: 'none', stroke: COLORS.normal, 'stroke-width': 2 });
+      appendSvg(root, 'circle', { cx: X(p), cy: Y(expectedIsolated(n, p)), r: 5, fill: COLORS.isolated });
+      for (const value of [0, 0.25, 0.5, 0.75, 1]) {
+        appendSvg(root, 'text', { x: X(value), y: 198, 'text-anchor': 'middle', 'font-size': 12, fill: COLORS.normal }, value);
+      }
+      appendSvg(root, 'text', { x: 10, y: 15, 'font-size': 12, fill: COLORS.normal }, 'E[X]');
+      appendSvg(root, 'text', { x: 30, y: 28, 'font-size': 12, fill: COLORS.normal }, n);
+      appendSvg(root, 'text', { x: 585, y: 198, 'font-size': 12, fill: COLORS.normal }, 'p');
+    }
+
+    // 7. Эксперимент Монте-Карло
+    function monteCarlo(n, p, repetitions = EXPERIMENT_COUNT) {
+      let sum = 0;
+      for (let t = 0; t < repetitions; t++) {
+        sum += generateGraph(n, p, null, false).isolated;
+      }
+      return sum / repetitions;
+    }
+
+    // 8. Обновление интерфейса
+    function render() {
+      const { n, p } = getParameters();
+      const graph = generateGraph(n, p, randomValues);
+      ui.nv.value = n;
+      ui.pv.value = p.toFixed(5);
+      ui.x.textContent = graph.isolated;
+      ui.ex.textContent = expectedIsolated(n, p).toFixed(4);
+      ui.result.textContent = '';
+      drawGraph(n, graph);
+      drawExpectation(n, p);
+    }
+
+    function regenerate() {
+      randomValues = generateRandomValues(getParameters().n);
+      render();
+    }
+
+    // 9. Обработчики событий
+    function bindEvents() {
+      ui.n.addEventListener('input', regenerate);
+      ui.p.addEventListener('input', render);
+      ui.fresh.addEventListener('click', regenerate);
+      ui.crit.addEventListener('click', () => {
+        // Ползунок округляет значение до ближайшего шага 0.00001.
+        ui.p.value = criticalProbability(getParameters().n);
+        render();
+      });
+      ui.mc.addEventListener('click', () => {
+        const { n, p } = getParameters();
+        const average = monteCarlo(n, p);
+        ui.result.textContent = `Среднее за ${EXPERIMENT_COUNT} реализаций: ${average.toFixed(3)}`;
+      });
+    }
+
+    // 10. Инициализация приложения
+    bindEvents();
+    regenerate();
+  </script>
+</body>
+</html>
