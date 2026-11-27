@@ -75,7 +75,7 @@ $EX=np$.
 
 Найдем вероятность того, что при  большом числе испытаний $n$, в каждом
 из которых вероятность успеха очень мала, успех наступит ровно $k$ раз. Важное допущение: произведение
-$\lambda = \cdot p$ сохраняет постоянное значение.
+$\lambda = n\cdot p$ сохраняет постоянное значение.
 
 По формуле Бернулли
 
@@ -88,13 +88,13 @@ $$ P_n(k) \approxeq  \lim\limits_{n\to \infty}  \cfrac{n(n-1)\cdot \ldots \cdot(
 
 $$ = \cfrac{\lambda^k}{k!} \lim\limits_{n\to \infty}  \left[ 1\cdot \left(1 - \cfrac{1}{n}\right)\cdot \left(1 - \cfrac{2}{n}\right)\cdot \ldots \cdot \cdot \left(1 - \cfrac{k-1}{n}\right) \right] \left(1-  \cfrac{\lambda}{n}\right)^{n - k} = $$
 
-$$ =  \cfrac{\lambda^k}{k!} \lim\limits_{n\to \infty}   \left(1-  \cfrac{\lambda}{n}\right)^{n} \cdot \lim\limits_{n\to \infty} \left(1-  \cfrac{\lambda}{n}\right)^{-k}  = \cfrac{\lambda^k}{k!} e^{-k}.$$
+$$ =  \cfrac{\lambda^k}{k!} \lim\limits_{n\to \infty}   \left(1-  \cfrac{\lambda}{n}\right)^{n} \cdot \lim\limits_{n\to \infty} \left(1-  \cfrac{\lambda}{n}\right)^{-k}  = \cfrac{\lambda^k}{k!} e^{-\lambda}.$$
 
 <div class="math-block definition">
 
 Закон распределения Пуассона вероятностей массовых ($n$ велико) и редких ($p$ мало) событий:
 
-$$ P(X = k) = \lambda^k \cfrac{e^{-k}}{k!}. $$
+$$ P(X = k) = \lambda^k \cfrac{e^{-\lambda}}{k!}. $$
 
 $EX = \lambda, \; DX = \lambda$.
 
